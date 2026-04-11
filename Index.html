@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Lathund – Teknikerreferens</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f3ef;--bg2:#eae9e4;--bg3:#ffffff;--bg4:#f9f8f5;
+  --text:#181816;--text2:#56544f;--text3:#8a8880;
+  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.05);
+  --mono:'SF Mono','Fira Code','Cascadia Code',monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --win:#0078d4;--winl:#e8f4fd;--winlt:#0a4a8a;
+  --mac:#2d2d2b;--macl:#f0efeb;--maclt:#2d2d2b;
+  --green:#1a7a3a;--greenl:#e8f5ee;
+  --red:#c0282a;--redl:#fce8e8;
+  --amber:#9a5a0a;--amberl:#fef3e2;
+  --purple:#5a3ab0;--purplel:#f0ebff;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#181816;--bg2:#202020;--bg3:#282826;--bg4:#222220;
+    --text:#e8e6e0;--text2:#9a9890;--text3:#6a6860;
+    --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.04);
+    --winl:#0a2540;--winlt:#70b8f0;
+    --macl:#2a2a28;--maclt:#d0cfc8;
+    --greenl:#0a2518;--green:#50c878;
+    --redl:#2a1010;--red:#f07070;
+    --amberl:#2a1a00;--amber:#f0b060;
+    --purplel:#1a1030;--purple:#a080e0;
+  }
+}
+
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh}
+
+/* TOP BAR */
+.topbar{
+  background:var(--bg3);border-bottom:1px solid var(--border);
+  padding:12px 20px;display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:100;flex-wrap:wrap;
+}
+.brand{font-size:14px;font-weight:700;letter-spacing:-.02em;color:var(--text);white-space:nowrap}
+.brand span{color:var(--text3);font-weight:400}
+.os-pills{display:flex;gap:4px}
+.os-pill{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--border);cursor:pointer;transition:all .12s;background:transparent;color:var(--text2)}
+.os-pill.win.active{background:var(--win);color:#fff;border-color:var(--win)}
+.os-pill.mac.active{background:var(--mac);color:#fff;border-color:var(--mac)}
+@media(prefers-color-scheme:dark){.os-pill.mac.active{background:#e8e6e0;color:#1a1a18;border-color:#e8e6e0}}
+.search-wrap{flex:1;max-width:320px;position:relative;min-width:160px}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);opacity:.4;pointer-events:none}
+#search{width:100%;padding:6px 10px 6px 32px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--bg2);color:var(--text);outline:none;font-family:var(--sans)}
+#search:focus{border-color:var(--win);box-shadow:0 0 0 2px rgba(0,120,212,.15)}
+.no-results{display:none;padding:32px;text-align:center;color:var(--text3);font-size:13px}
+
+/* LAYOUT */
+.layout{display:flex;max-width:1100px;margin:0 auto;min-height:calc(100vh - 57px)}
+.sidebar{width:210px;flex-shrink:0;border-right:1px solid var(--border);padding:16px 0;position:sticky;top:57px;height:calc(100vh - 57px);overflow-y:auto}
+.slabel{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;padding:10px 16px 4px;margin-top:4px}
+.slabel:first-child{padding-top:0}
+.nav-item{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:7px 16px;font-size:12px;font-weight:500;color:var(--text2);background:none;border:none;cursor:pointer;transition:all .1s;border-left:2px solid transparent}
+.nav-item:hover{background:var(--bg2);color:var(--text)}
+.nav-item.active{color:var(--text);background:var(--bg2);border-left-color:var(--win);font-weight:600}
+.nav-item.mac-nav.active{border-left-color:var(--mac)}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:var(--border);flex-shrink:0}
+.nav-item.active .nav-dot{background:var(--win)}
+.nav-item.mac-nav.active .nav-dot{background:var(--mac)}
+
+/* MAIN */
+.main{flex:1;padding:20px 24px 60px;min-width:0}
+.os-panel{display:none}
+.os-panel.active{display:block}
+.section{display:none}
+.section.active{display:block}
+
+/* SECTION HEADER */
+.sec-header{margin-bottom:16px}
+.sec-title{font-size:18px;font-weight:700;letter-spacing:-.02em}
+.sec-when{
+  margin-top:8px;padding:10px 14px;
+  background:var(--purplel);border-left:3px solid var(--purple);
+  border-radius:0 6px 6px 0;font-size:12px;color:var(--purple);line-height:1.6;
+}
+.sec-when strong{font-weight:600}
+
+/* CARDS */
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.card-header{padding:11px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;transition:background .1s}
+.card-header:hover{background:var(--bg4)}
+.card.open .card-header{border-bottom:1px solid var(--border2)}
+.card-title{font-size:13px;font-weight:600;flex:1}
+.card-when{font-size:11px;color:var(--text3);font-weight:400;margin-top:1px}
+.badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.03em;flex-shrink:0}
+.b-red{background:var(--redl);color:var(--red)}
+.b-amber{background:var(--amberl);color:var(--amber)}
+.b-blue{background:var(--winl);color:var(--winlt)}
+.b-green{background:var(--greenl);color:var(--green)}
+.b-purple{background:var(--purplel);color:var(--purple)}
+.chevron{font-size:9px;color:var(--text3);transition:transform .15s;flex-shrink:0}
+.card.open .chevron{transform:rotate(90deg)}
+.card-body{display:none}
+.card.open .card-body{display:block}
+
+/* CMD ROWS */
+.cmd-row{display:flex;align-items:flex-start;gap:0;border-bottom:1px solid var(--border2);position:relative}
+.cmd-row:last-child{border-bottom:none}
+.cmd-row:hover{background:var(--bg4)}
+.cmd-row:hover .copy-btn{opacity:1}
+.cmd-left{padding:8px 14px;display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+.cmd{font-family:var(--mono);font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:3px 8px;color:var(--text);display:inline-block;line-height:1.8;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cmd-situation{font-size:11px;color:var(--green);font-weight:500;margin-bottom:1px}
+.desc{font-size:12px;color:var(--text2);line-height:1.5}
+.copy-btn{
+  opacity:0;transition:opacity .1s;
+  background:none;border:none;cursor:pointer;
+  padding:8px 12px;color:var(--text3);font-size:11px;
+  white-space:nowrap;align-self:flex-start;margin-top:4px;
+  font-family:var(--sans);
+}
+.copy-btn:hover{color:var(--text)}
+.copy-btn.copied{color:var(--green);opacity:1}
+
+/* TIPS */
+.tip{margin:8px 14px;padding:9px 13px;border-radius:6px;font-size:12px;line-height:1.65;border-left:3px solid}
+.tip-red{background:var(--redl);border-color:var(--red);color:var(--red)}
+.tip-amber{background:var(--amberl);border-color:var(--amber);color:var(--amber)}
+.tip-blue{background:var(--winl);border-color:var(--win);color:var(--winlt)}
+.tip-green{background:var(--greenl);border-color:var(--green);color:var(--green)}
+.tip strong{font-weight:600;color:inherit}
+.tip .mn{font-family:var(--mono);font-size:11px}
+
+/* FLOW – steg-för-steg */
+.flow{margin:10px 14px 14px;display:flex;flex-direction:column;gap:0}
+.flow-step{display:flex;gap:12px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border2);position:relative}
+.flow-step:last-child{border-bottom:none}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--win);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.mac-panel .step-num{background:var(--mac)}
+@media(prefers-color-scheme:dark){.mac-panel .step-num{background:#e8e6e0;color:#1a1a18}}
+.step-body{flex:1}
+.step-label{font-size:12px;font-weight:600;color:var(--text)}
+.step-cmd{font-family:var(--mono);font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:2px 7px;display:inline-block;margin:3px 0;color:var(--text)}
+.step-note{font-size:11px;color:var(--text2)}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:7px 14px;color:var(--text2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);background:var(--bg4)}
+td{padding:7px 14px;border-bottom:1px solid var(--border2);vertical-align:top;line-height:1.5}
+td.mono{font-family:var(--mono);font-size:11px;color:var(--text2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg4)}
+
+/* SHORTCUT GRID */
+.sk-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
+.sk-row{display:flex;align-items:flex-start;gap:10px;padding:7px 14px;background:var(--bg3)}
+.sk-key{font-family:var(--mono);font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:2px 7px;white-space:nowrap;color:var(--text);flex-shrink:0}
+.sk-desc{font-size:12px;color:var(--text2)}
+
+/* SEARCH HIGHLIGHT */
+.hl{background:#fff176;color:#1a1a18;border-radius:2px}
+@media(prefers-color-scheme:dark){.hl{background:#7a6a00;color:#fff}}
+
+/* SEARCH RESULTS */
+.search-result-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.src-os{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:6px 14px 0;color:var(--text3)}
+.src-section{font-size:11px;color:var(--text3);padding:0 14px 6px;border-bottom:1px solid var(--border2)}
+#search-results{display:none}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="brand">IT Lathund <span>· Teknikerreferens</span></div>
+  <div class="os-pills">
+    <button class="os-pill win active" id="bw" onclick="switchOS('win')">Windows</button>
+    <button class="os-pill mac" id="bm" onclick="switchOS('mac')">macOS</button>
+  </div>
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.5" fill="none"/><line x1="9.5" y1="9.5" x2="13" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <input type="text" id="search" placeholder="Sök kommando eller situation…" oninput="doSearch(this.value)" autocomplete="off">
+  </div>
+</div>
+
+<div class="layout">
+
+<!-- ═══════ SIDEBAR WIN ═══════ -->
+<div class="sidebar" id="sw">
+  <div class="slabel">Situationer</div>
+  <button class="nav-item active" onclick="st('win','w-flow',this)"><span class="nav-dot"></span>Felsökningsflöden</button>
+  <div class="slabel">System</div>
+  <button class="nav-item" onclick="st('win','w-sys',this)"><span class="nav-dot"></span>Systeminfo</button>
+  <button class="nav-item" onclick="st('win','w-boot',this)"><span class="nav-dot"></span>Boot &amp; Recovery</button>
+  <button class="nav-item" onclick="st('win','w-proc',this)"><span class="nav-dot"></span>Processer &amp; CPU</button>
+  <div class="slabel">Verktyg</div>
+  <button class="nav-item" onclick="st('win','w-disk',this)"><span class="nav-dot"></span>Disk &amp; Lagring</button>
+  <button class="nav-item" onclick="st('win','w-net',this)"><span class="nav-dot"></span>Nätverk</button>
+  <button class="nav-item" onclick="st('win','w-drv',this)"><span class="nav-dot"></span>Drivrutiner</button>
+  <button class="nav-item" onclick="st('win','w-svc',this)"><span class="nav-dot"></span>Tjänster</button>
+  <button class="nav-item" onclick="st('win','w-evt',this)"><span class="nav-dot"></span>Händelseloggar</button>
+  <div class="slabel">Avancerat</div>
+  <button class="nav-item" onclick="st('win','w-reg',this)"><span class="nav-dot"></span>Registret</button>
+  <button class="nav-item" onclick="st('win','w-perm',this)"><span class="nav-dot"></span>Behörigheter</button>
+  <button class="nav-item" onclick="st('win','w-rep',this)"><span class="nav-dot"></span>Systemreparation</button>
+  <button class="nav-item" onclick="st('win','w-keys',this)"><span class="nav-dot"></span>Kortkommandon</button>
+  <div class="slabel">Referens</div>
+  <button class="nav-item" onclick="st('win','w-warn',this)"><span class="nav-dot"></span>Varningstecken</button>
+</div>
+
+<!-- ═══════ SIDEBAR MAC ═══════ -->
+<div class="sidebar" id="sm" style="display:none">
+  <div class="slabel">Situationer</div>
+  <button class="nav-item mac-nav active" onclick="st('mac','m-flow',this)"><span class="nav-dot"></span>Felsökningsflöden</button>
+  <div class="slabel">System</div>
+  <button class="nav-item mac-nav" onclick="st('mac','m-boot',this)"><span class="nav-dot"></span>Boot &amp; Recovery</button>
+  <button class="nav-item mac-nav" onclick="st('mac','m-proc',this)"><span class="nav-dot"></span>Processer &amp; CPU</button>
+  <div class="slabel">Verktyg</div>
+  <button class="nav-item mac-nav" onclick="st('mac','m-disk',this)"><span class="nav-dot"></span>Disk &amp; Lagring</button>
+  <button class="nav-item mac-nav" onclick="st('mac','m-net',this)"><span class="nav-dot"></span>Nätverk</button>
+  <button class="nav-item mac-nav" onclick="st('mac','m-log',this)"><span class="nav-dot"></span>Loggar</button>
+  <button class="nav-item mac-nav" onclick="st('mac','m-perm',this)"><span class="nav-dot"></span>Behörigheter</button>
+  <button class="nav-item mac-nav" onclick="st('mac','m-svc',this)"><span class="nav-dot"></span>Tjänster</button>
+  <div class="slabel">Referens</div>
+  <button class="nav-item mac-nav" onclick="st('mac','m-xref',this)"><span class="nav-dot"></span>Windows → Mac</button>
+  <button class="nav-item mac-nav" onclick="st('mac','m-warn',this)"><span class="nav-dot"></span>Varningstecken</button>
+</div>
+
+<!-- ═══════ MAIN ═══════ -->
+<div class="main">
+
+<!-- SEARCH RESULTS -->
+<div id="search-results"></div>
+<div class="no-results" id="no-results">Inga träffar. Prova annat sökord.</div>
+
+<!-- ══════════════════════════════════════ WINDOWS ══ -->
+<div class="os-panel active" id="pw">
+
+<!-- W: FLÖDEN -->
+<div class="section active" id="w-flow">
+  <div class="sec-header">
+    <div class="sec-title">Felsökningsflöden – Windows</div>
+    <div class="sec-when"><strong>Använd dessa när</strong> du ställs inför ett vanligt supportärende och behöver ett strukturerat angreppssätt. Följ stegen i ordning – hoppa inte direkt till avancerade åtgärder.</div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)">
+      <div style="flex:1"><div class="card-title">Datorn är långsam / hänger sig</div><div class="card-when">Situation: Användaren klagar på tröghet, fördröjning, fryser</div></div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Kolla vad som äter resurser</div><div class="step-cmd">taskmgr</div><div class="step-note">Sortera på CPU och Disk. Noterar du 100% disk? Se steg 3. Hög CPU? Identifiera processen.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Djupare analys per process</div><div class="step-cmd">resmon</div><div class="step-note">Resursövervakaren visar exakt vilka filer en process läser/skriver – bättre än Task Manager.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Om 100% disk – stäng av SysMain</div><div class="step-cmd">services.msc → SysMain → Stoppa + Inaktivera</div><div class="step-note">SysMain (Superfetch) är vanligaste orsaken till konstant 100% disk på HDD/äldre SSD.</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Rensa temp och frigör disk</div><div class="step-cmd">cleanmgr</div><div class="step-note">Kör Diskrensning. Kontrollera också %temp% och ta bort allt.</div></div></div>
+        <div class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">Kontrollera systemfilernas integritet</div><div class="step-cmd">dism /online /cleanup-image /restorehealth</div><div class="step-note">Kör sedan sfc /scannow. Om dessa rapporterar fel är Windows-installationen korrupt.</div></div></div>
+        <div class="flow-step"><div class="step-num">6</div><div class="step-body"><div class="step-label">Kontrollera diskens hälsa</div><div class="step-cmd">wmic diskdrive get status,model</div><div class="step-note">Om status visar Pred Fail – byt disk omedelbart. Backup först.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)">
+      <div style="flex:1"><div class="card-title">Ingen internet / nätverksproblem</div><div class="card-when">Situation: Kan inte surfa, tappar anslutning, kan nå vissa sidor men inte andra</div></div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Isolera – är det DNS eller routing?</div><div class="step-cmd">ping 8.8.8.8</div><div class="step-note">Fungerar detta men inte ping google.com → DNS-problem. Fungerar inte alls → routing/gateway-problem.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">DNS-problem: rensa cache och testa</div><div class="step-cmd">ipconfig /flushdns</div><div class="step-note">Testa sedan ping google.com igen. Fungerar det nu är DNS-cachen korrupt – löst.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Förnya IP-lease</div><div class="step-cmd">ipconfig /release &amp;&amp; ipconfig /renew</div><div class="step-note">Löser problem där datorn fått fel IP eller inte får IP alls från DHCP.</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Återställ nätverksstacken (kärnfixen)</div><div class="step-cmd">netsh winsock reset &amp;&amp; netsh int ip reset</div><div class="step-note">Kräver omstart. Löser de flesta mystiska nätverksproblem som inte svarar på andra åtgärder.</div></div></div>
+        <div class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">Kontrollera om brandväggen blockerar</div><div class="step-cmd">netsh advfirewall set allprofiles state off</div><div class="step-note">Testa anslutningen. Om det fungerar nu är brandväggen problemet – aktivera igen och undersök regler.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)">
+      <div style="flex:1"><div class="card-title">Drivrutin fungerar inte / enhet saknas</div><div class="card-when">Situation: Gult utropstecken i Enhetshanteraren, USB/portar reagerar inte, enhet saknas helt</div></div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Kontrollera Enhetshanteraren noggrant</div><div class="step-cmd">devmgmt.msc → Visa → Visa dolda enheter</div><div class="step-note">Gult utropstecken = drivrutinsfel. Saknas enheten helt → BIOS eller hårdvarufel.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Tvinga Windows att söka om drivrutiner</div><div class="step-cmd">pnputil /scan-devices</div><div class="step-note">Kör som admin. Windows söker aktivt efter ansluten hårdvara och försöker installera drivrutiner.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Om drivrutin slutade fungera efter uppdatering</div><div class="step-cmd">Enhetshanteraren → Egenskaper → Drivrutin → Återställ</div><div class="step-note">Rollback till föregående drivrutin. Fungerar bara om en tidigare version finns sparad.</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Reparera systemfilerna</div><div class="step-cmd">dism /online /cleanup-image /restorehealth</div><div class="step-note">Korrupta systemfiler kan hindra drivrutiner från att installeras korrekt.</div></div></div>
+        <div class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">Om enheten saknas helt – kontrollera BIOS</div><div class="step-cmd">F10 (HP) → Port Options / USB Configuration</div><div class="step-note">Porten kan vara inaktiverad i BIOS. Kör även HP Diagnostics (F2) för hårdvarutest.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)">
+      <div style="flex:1"><div class="card-title">Windows Update fungerar inte</div><div class="card-when">Situation: Update fastnar, felkoder, rullar tillbaka, 0% länge</div></div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Stoppa Update-tjänster</div><div class="step-cmd">net stop wuauserv &amp;&amp; net stop bits</div><div class="step-note">Måste stoppas innan vi rensar cache-mappen.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Rensa Update-cachen</div><div class="step-cmd">ren C:\Windows\SoftwareDistribution SoftwareDistribution.old</div><div class="step-note">Döper om mappen, raderar inte. Windows skapar en ny vid nästa start.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Starta om tjänster</div><div class="step-cmd">net start wuauserv &amp;&amp; net start bits</div><div class="step-note">Starta om datorn och försök uppdatera igen. Löser 80% av Update-problem.</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Om det fortfarande inte fungerar – reparera Windows</div><div class="step-cmd">dism /online /cleanup-image /restorehealth</div><div class="step-note">Laddar ner och ersätter korrupta komponenter. Kräver internetanslutning.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)">
+      <div style="flex:1"><div class="card-title">BSOD – Blue Screen of Death</div><div class="card-when">Situation: Datorn kraschar med blå skärm och felkod</div></div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Notera felkoden och undersök händelseloggen</div><div class="step-cmd">eventvwr.msc → Windows Logs → System → Critical/Error</div><div class="step-note">Filtrera på tidpunkten för kraschen. Vanliga koder: IRQL_NOT_LESS_OR_EQUAL (drivrutin), MEMORY_MANAGEMENT (RAM).</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Testa RAM-minnet</div><div class="step-cmd">mdsched.exe</div><div class="step-note">Kör vid nästa omstart. Om RAM är trasigt hittas det här.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Kontrollera och reparera systemfiler</div><div class="step-cmd">sfc /scannow</div><div class="step-note">Kör efter DISM. Korrupta systemfiler kan orsaka BSOD.</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Rulla tillbaka senaste drivrutin</div><div class="step-cmd">Enhetshanteraren → Drivrutin → Återställ</div><div class="step-note">BSOD efter Windows Update? En ny drivrutin är ofta boven. Rulla tillbaka grafik- eller nätverksdrivrutin.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- W: SYSTEMINFO -->
+<div class="section" id="w-sys">
+  <div class="sec-header">
+    <div class="sec-title">Systeminfo – Windows</div>
+    <div class="sec-when"><strong>Använd när</strong> du behöver snabb hårdvarufakta, vill verifiera OS-version/build, eller ska dokumentera en maskin inför support eller utbyte.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">GUI-verktyg</div><div class="card-when">Öppna via Win + R eller sök i Start</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">msinfo32</span><span class="desc">Komplett systemöversikt – OS, hårdvara, drivrutiner, komponenter. Förstahandsvalet för dokumentation.</span></div><button class="copy-btn" onclick="cp(this,'msinfo32')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">devmgmt.msc</span><span class="desc">Enhetshanteraren – drivrutiner, hårdvara, utropstecken</span></div><button class="copy-btn" onclick="cp(this,'devmgmt.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">compmgmt.msc</span><span class="desc">Datorhantering – disk, tjänster, händelselogg och lokala användare samlat</span></div><button class="copy-btn" onclick="cp(this,'compmgmt.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">taskmgr</span><span class="desc">Aktivitetshanteraren – processer, CPU, RAM, disk, nätverk, startup</span></div><button class="copy-btn" onclick="cp(this,'taskmgr')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">resmon</span><span class="desc">Resursövervakaren – djupare än Task Manager, per-process disk/nätverks-IO</span></div><button class="copy-btn" onclick="cp(this,'resmon')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">CMD / PowerShell</div><div class="card-when">När du arbetar i terminal eller ska skriptas</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Snabb OS-koll</span><span class="cmd">winver</span><span class="desc">Visar Windows-version och build-nummer i en popup</span></div><button class="copy-btn" onclick="cp(this,'winver')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Fullständig systeminformation</span><span class="cmd">systeminfo</span><span class="desc">OS-version, RAM, processor, nätverkskort, installerade hotfixes</span></div><button class="copy-btn" onclick="cp(this,'systeminfo')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Hitta datormodell för HP-support</span><span class="cmd">wmic computersystem get model,manufacturer</span><span class="desc">Datormodell och tillverkare</span></div><button class="copy-btn" onclick="cp(this,'wmic computersystem get model,manufacturer')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Serienummer för garantiärende</span><span class="cmd">wmic bios get serialnumber</span><span class="desc">Serienummer direkt utan att vända på datorn</span></div><button class="copy-btn" onclick="cp(this,'wmic bios get serialnumber')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ CPU-info</span><span class="cmd">wmic cpu get name,numberofcores,maxclockspeed</span><span class="desc">CPU-namn, kärnor, klockfrekvens</span></div><button class="copy-btn" onclick="cp(this,'wmic cpu get name,numberofcores,maxclockspeed')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ RAM-moduler</span><span class="cmd">wmic memorychip get capacity,speed</span><span class="desc">RAM-kapacitet och hastighet per modul</span></div><button class="copy-btn" onclick="cp(this,'wmic memorychip get capacity,speed')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ PowerShell allt-i-ett</span><span class="cmd">Get-ComputerInfo</span><span class="desc">Komplett systeminformation i ett kommando</span></div><button class="copy-btn" onclick="cp(this,'Get-ComputerInfo')">Kopiera</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- W: BOOT -->
+<div class="section" id="w-boot">
+  <div class="sec-header">
+    <div class="sec-title">Boot &amp; Recovery – Windows</div>
+    <div class="sec-when"><strong>Använd när</strong> datorn inte startar, du behöver Safe Mode, ska återställa systemet, eller felsöka startproblem. HP-tangenter används alltid före Windows laddas.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">HP-tangenter vid start</div><div class="card-when">Tryck direkt vid HP-loggan innan Windows laddas</div></div><span class="badge b-blue">HP</span><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ BIOS-inställningar, port options, secure boot</span><span class="cmd">F10</span><span class="desc">BIOS/UEFI. Inne i BIOS: F9 = Load Defaults · F10 = Spara och avsluta</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Hårdvarutest utan Windows (USB, disk, minne, batteri)</span><span class="cmd">F2</span><span class="desc">HP PC Hardware Diagnostics – avgör om felet är hårdvara eller mjukvara</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Välja vilken enhet att starta från</span><span class="cmd">F9</span><span class="desc">Boot device selection – välj USB, DVD eller disk manuellt</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Visa alla startalternativ</span><span class="cmd">Esc</span><span class="desc">Startup Menu – visar F2/F9/F10/F11-valen samlat</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Återställ till fabriksinställningar</span><span class="cmd">F11</span><span class="desc">HP Recovery – raderar allt och återställer fabriken</span></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Windows Recovery &amp; Safe Mode</div><div class="card-when">När Windows startar men beter sig fel</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Komma till Safe Mode / Startup Repair</span><span class="cmd">Shift + Omstart (från Start-menyn)</span><span class="desc">Öppnar WinRE – Avancerade alternativ → Felsök → Startinställningar</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Systemkonfiguration, boot-flaggor</span><span class="cmd">msconfig</span><span class="desc">Boot-fliken → kryssa Safe boot för att tvinga Safe Mode</span></div><button class="copy-btn" onclick="cp(this,'msconfig')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Tvinga Safe Mode via CMD (admin)</span><span class="cmd">bcdedit /set safeboot minimal</span><span class="desc">Starta om. Ta bort med: bcdedit /deletevalue safeboot</span></div><button class="copy-btn" onclick="cp(this,'bcdedit /set safeboot minimal')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Starta Systemåterställning</span><span class="cmd">rstrui.exe</span><span class="desc">Återställ till en tidigare återställningspunkt</span></div><button class="copy-btn" onclick="cp(this,'rstrui.exe')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Kontrollera att WinRE är aktivt</span><span class="cmd">reagentc /info</span><span class="desc">Visar WinRE-status. Starta om med: reagentc /enable</span></div><button class="copy-btn" onclick="cp(this,'reagentc /info')">Kopiera</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- W: PROCESSER -->
+<div class="section" id="w-proc">
+  <div class="sec-header">
+    <div class="sec-title">Processer &amp; CPU – Windows</div>
+    <div class="sec-when"><strong>Använd när</strong> datorn är trög, en specifik app hänger sig, du misstänker en process äter onödigt mycket resurser, eller behöver force-avsluta något.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Identifiera och hantera processer – CMD</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Lista alla körande processer</span><span class="cmd">tasklist</span><span class="desc">Visar PID och minnesanvändning. Kombinera med findstr för att filtrera.</span></div><button class="copy-btn" onclick="cp(this,'tasklist')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Hitta specifik process</span><span class="cmd">tasklist | findstr "chrome"</span><span class="desc">Byt ut "chrome" mot det du letar efter</span></div><button class="copy-btn" onclick="cp(this,'tasklist | findstr &quot;chrome&quot;')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Force kill via PID</span><span class="cmd">taskkill /PID 1234 /F</span><span class="desc">Hämta PID från tasklist. /F = force, avslutar utan dialog.</span></div><button class="copy-btn" onclick="cp(this,'taskkill /PID 1234 /F')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Force kill via appnamn</span><span class="cmd">taskkill /IM notepad.exe /F</span><span class="desc">Stänger alla instanser av angiven app</span></div><button class="copy-btn" onclick="cp(this,'taskkill /IM notepad.exe /F')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">PowerShell – mer kontroll</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Top 10 CPU-slukare</span><span class="cmd">Get-Process | Sort CPU -Descending | Select -First 10</span><span class="desc">Snabbast sätt att identifiera vad som belastar CPU:n</span></div><button class="copy-btn" onclick="cp(this,'Get-Process | Sort CPU -Descending | Select -First 10')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Force kill via namn (PowerShell)</span><span class="cmd">Stop-Process -Name "notepad" -Force</span></div><button class="copy-btn" onclick="cp(this,'Stop-Process -Name &quot;notepad&quot; -Force')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Startup-program</div><div class="card-when">Minska starttid, inaktivera onödiga program</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ GUI – enklast</span><span class="cmd">taskmgr → Startup-fliken</span><span class="desc">Högerklicka och inaktivera program som inte behövs vid start</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Öppna startup-mapp direkt</span><span class="cmd">shell:startup</span><span class="desc">Filer här startar automatiskt vid inloggning för denna användare</span></div><button class="copy-btn" onclick="cp(this,'shell:startup')">Kopiera</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- W: DISK -->
+<div class="section" id="w-disk">
+  <div class="sec-header">
+    <div class="sec-title">Disk &amp; Lagring – Windows</div>
+    <div class="sec-when"><strong>Använd när</strong> disk är full, datorn är trög (100% disk), du misstänker filsystemsfel, eller ska kontrollera diskens hälsa inför utbyte.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Diskinfo &amp; utrymme</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ GUI – partitioner och volymer</span><span class="cmd">diskmgmt.msc</span><span class="desc">Diskhanteraren – visuell vy av partitioner, formatering, enhetsbeteckningar</span></div><button class="copy-btn" onclick="cp(this,'diskmgmt.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Ledigt utrymme per disk (CMD)</span><span class="cmd">wmic logicaldisk get caption,size,freespace</span><span class="desc">Alla diskar med total- och ledig kapacitet i bytes</span></div><button class="copy-btn" onclick="cp(this,'wmic logicaldisk get caption,size,freespace')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Ledigt utrymme (PowerShell, läsbart format)</span><span class="cmd">Get-PSDrive -PSProvider FileSystem</span></div><button class="copy-btn" onclick="cp(this,'Get-PSDrive -PSProvider FileSystem')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">chkdsk – filsystemsreparation</div><div class="card-when">Kör när du misstänker korrupta filer eller diskfel</div></div><span class="badge b-amber">Kräver omstart</span><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-blue"><strong>Ordning:</strong> Börja alltid med /scan för att se om det behövs reparation. Använd /f eller /r bara om problem hittades.</div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Kontrollera utan att reparera</span><span class="cmd">chkdsk C: /scan</span><span class="desc">Online-skanning – kan köras utan omstart på Windows 8+</span></div><button class="copy-btn" onclick="cp(this,'chkdsk C: /scan')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Reparera filsystemfel</span><span class="cmd">chkdsk C: /f</span><span class="desc">Schemaläggs till nästa omstart på systemdisken</span></div><button class="copy-btn" onclick="cp(this,'chkdsk C: /f')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Reparera + sök dåliga sektorer (djupgående)</span><span class="cmd">chkdsk C: /r</span><span class="desc">/r inkluderar /f. Tar lång tid. Kör om du misstänker fysiska diskfel.</span></div><button class="copy-btn" onclick="cp(this,'chkdsk C: /r')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">SMART – diskens hälsostatus</div><div class="card-when">Kontrollera alltid innan utbyte eller vid misstänkt diskfel</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Snabb SMART-status</span><span class="cmd">wmic diskdrive get status,model</span><span class="desc">OK = frisk · Pred Fail = byt disk NU och ta backup</span></div><button class="copy-btn" onclick="cp(this,'wmic diskdrive get status,model')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Utökad status (PowerShell)</span><span class="cmd">Get-PhysicalDisk | Select FriendlyName,HealthStatus,OperationalStatus</span></div><button class="copy-btn" onclick="cp(this,'Get-PhysicalDisk | Select FriendlyName,HealthStatus,OperationalStatus')">Kopiera</button></div>
+      <div class="tip tip-red"><strong>Pred Fail</strong> = disken är på väg att ge upp. Backup omedelbart och planera utbyte.</div>
+    </div>
+  </div>
+</div>
+
+<!-- W: NÄTVERK -->
+<div class="section" id="w-net">
+  <div class="sec-header">
+    <div class="sec-title">Nätverk – Windows</div>
+    <div class="sec-when"><strong>Använd när</strong> användaren saknar internet, kan inte nå specifika servrar, IP-konflikter, DNS-problem, eller behöver diagnostisera nätverksanslutningen.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Diagnos – börja här</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ IP, gateway, DNS – fullständig info</span><span class="cmd">ipconfig /all</span><span class="desc">Inkl. MAC-adress, DHCP-server. Bekräfta att IP är korrekt och att gateway är satt.</span></div><button class="copy-btn" onclick="cp(this,'ipconfig /all')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Testa internet (kringgår DNS)</span><span class="cmd">ping 8.8.8.8</span><span class="desc">Fungerar detta men inte ping google.com → DNS-problem</span></div><button class="copy-btn" onclick="cp(this,'ping 8.8.8.8')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Testa DNS-upplösning</span><span class="cmd">ping google.com</span><span class="desc">Om detta misslyckas men 8.8.8.8 fungerar är det DNS</span></div><button class="copy-btn" onclick="cp(this,'ping google.com')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Rensa DNS-cache</span><span class="cmd">ipconfig /flushdns</span><span class="desc">Löser problem med gamla/felaktiga DNS-poster</span></div><button class="copy-btn" onclick="cp(this,'ipconfig /flushdns')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Ny IP från DHCP</span><span class="cmd">ipconfig /release &amp;&amp; ipconfig /renew</span></div><button class="copy-btn" onclick="cp(this,'ipconfig /release && ipconfig /renew')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Var tappar paketen? (= tracert)</span><span class="cmd">tracert google.com</span><span class="desc">Varje hopp visas med svarstid. Timeout (*) = paket tappar där.</span></div><button class="copy-btn" onclick="cp(this,'tracert google.com')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Återställning av nätverksstacken</div><div class="card-when">Kör när vanliga åtgärder inte hjälper</div></div><span class="badge b-amber">Kräver omstart</span><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-blue"><strong>Kör båda i kombination</strong> och starta om – löser de flesta mystiska nätverksproblem som inte svarar på ipconfig-kommandon.</div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">netsh winsock reset</span><span class="desc">Återställer Winsock-lagret – löser problem med kapade socket-anslutningar</span></div><button class="copy-btn" onclick="cp(this,'netsh winsock reset')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">netsh int ip reset</span><span class="desc">Återställer hela TCP/IP-stacken</span></div><button class="copy-btn" onclick="cp(this,'netsh int ip reset')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Tillfälligt testa utan brandvägg</span><span class="cmd">netsh advfirewall set allprofiles state off</span><span class="desc">Aktivera igen: netsh advfirewall set allprofiles state on</span></div><button class="copy-btn" onclick="cp(this,'netsh advfirewall set allprofiles state off')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Portar &amp; anslutningar</div><div class="card-when">Vilken process lyssnar på en port? Misstänkt trafik?</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Vad lyssnar på vilken port?</span><span class="cmd">netstat -ano</span><span class="desc">Visa alla aktiva anslutningar med PID. Matcha PID mot tasklist.</span></div><button class="copy-btn" onclick="cp(this,'netstat -ano')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Vilken app äger anslutningen?</span><span class="cmd">netstat -b</span><span class="desc">Kräver admin. Visar appnamn direkt.</span></div><button class="copy-btn" onclick="cp(this,'netstat -b')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Wi-Fi – visa sparat lösenord</span><span class="cmd">netsh wlan show profile name="Nätnamn" key=clear</span><span class="desc">Byt Nätnamn mot det sparade nätverkets namn</span></div><button class="copy-btn" onclick="cp(this,'netsh wlan show profile name=&quot;Nätnamn&quot; key=clear')">Kopiera</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- W: DRIVRUTINER -->
+<div class="section" id="w-drv">
+  <div class="sec-header">
+    <div class="sec-title">Drivrutiner – Windows</div>
+    <div class="sec-when"><strong>Använd när</strong> ett gult utropstecken syns i Enhetshanteraren, en enhet slutat fungera, drivrutin behöver installeras eller avinstalleras, eller du ska inventera installerade drivrutiner.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">pnputil – drivrutinshantering via CMD</div><div class="card-when">Kör alltid som administratör</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Windows söker aktivt efter ny hårdvara</span><span class="cmd">pnputil /scan-devices</span><span class="desc">Tvingar Windows att hitta och installera drivrutiner. Första steget vid saknad enhet.</span></div><button class="copy-btn" onclick="cp(this,'pnputil /scan-devices')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Lista alla installerade drivrutiner</span><span class="cmd">pnputil /enum-drivers</span><span class="desc">Visar OEM-nummer, klart för filtrering eller rensning</span></div><button class="copy-btn" onclick="cp(this,'pnputil /enum-drivers')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Installera drivrutin från .inf-fil</span><span class="cmd">pnputil /add-driver C:\drv\drv.inf /install</span></div><button class="copy-btn" onclick="cp(this,'pnputil /add-driver C:\\drv\\drv.inf /install')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Ta bort specifik drivrutin</span><span class="cmd">pnputil /delete-driver oem5.inf /uninstall /force</span><span class="desc">OEM-nummer hämtas från /enum-drivers</span></div><button class="copy-btn" onclick="cp(this,'pnputil /delete-driver oem5.inf /uninstall /force')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Enhetshanteraren – navigering</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-blue">Gult ! = drivrutinsfel · Röd X = inaktiverad enhet · Nedåtpil = manuellt inaktiverad · Frågemark = okänd enhet</div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Avslöja dolda/gamla enheter</span><span class="cmd">devmgmt.msc → Visa → Visa dolda enheter</span><span class="desc">Ghostade enheter och gammal hårdvara syns. Viktigt vid USB-felsökning.</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Rulla tillbaka drivrutin</span><span class="cmd">Egenskaper → Drivrutin → Återställ drivrutin</span><span class="desc">Fungerar om en tidigare version finns sparad. Används efter problematisk Windows Update.</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- W: TJÄNSTER -->
+<div class="section" id="w-svc">
+  <div class="sec-header">
+    <div class="sec-title">Tjänster – Windows</div>
+    <div class="sec-when"><strong>Använd när</strong> en systemfunktion slutat fungera (skrivare, Windows Update, nätverk), du ska felsöka prestandaproblem (SysMain, BITS), eller hantera autostart-tjänster.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Hantera tjänster – CMD &amp; GUI</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ GUI – enklast för start/stopp/starttyp</span><span class="cmd">services.msc</span></div><button class="copy-btn" onclick="cp(this,'services.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Starta tjänst via CMD</span><span class="cmd">net start "Tjänstnamn"</span></div><button class="copy-btn" onclick="cp(this,'net start &quot;Tjänstnamn&quot;')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Stoppa tjänst via CMD</span><span class="cmd">net stop "Tjänstnamn"</span></div><button class="copy-btn" onclick="cp(this,'net stop &quot;Tjänstnamn&quot;')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Kontrollera status för specifik tjänst</span><span class="cmd">sc query "wuauserv"</span><span class="desc">Byt wuauserv mot valfritt tjänstnamn (internt namn, ej visningsnamn)</span></div><button class="copy-btn" onclick="cp(this,'sc query &quot;wuauserv&quot;')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Inaktivera tjänst permanent</span><span class="cmd">sc config "Tjänst" start= disabled</span><span class="desc">Notera mellanslaget efter = (obligatoriskt!)</span></div><button class="copy-btn" onclick="cp(this,'sc config &quot;Tjänst&quot; start= disabled')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Vanliga tjänstfixar</div><div class="card-when">Snabbreferens för vanliga ärenden</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Skrivare fungerar inte</span><span class="cmd">Restart-Service -Name "Spooler"</span><span class="desc">Print Spooler-restart löser de flesta skrivarproblem direkt</span></div><button class="copy-btn" onclick="cp(this,'Restart-Service -Name &quot;Spooler&quot;')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Datorn trög – 100% disk</span><span class="cmd">Stop-Service SysMain -Force && Set-Service SysMain -StartupType Disabled</span><span class="desc">Inaktiverar Superfetch/SysMain som ofta orsakar 100% disk på HDD</span></div><button class="copy-btn" onclick="cp(this,'Stop-Service SysMain -Force')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Windows Update fungerar inte</span><span class="cmd">net stop wuauserv &amp;&amp; net stop bits</span><span class="desc">Stoppa först, rensa sedan SoftwareDistribution-mappen</span></div><button class="copy-btn" onclick="cp(this,'net stop wuauserv && net stop bits')">Kopiera</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- W: HÄNDELSELOGGAR -->
+<div class="section" id="w-evt">
+  <div class="sec-header">
+    <div class="sec-title">Händelseloggar – Windows</div>
+    <div class="sec-when"><strong>Använd när</strong> du behöver förstå varför något gick fel, hitta tidpunkten för en krasch, eller spåra inloggningsförsök och säkerhetshändelser.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Händelseloggen – navigering</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Öppna Event Viewer (GUI)</span><span class="cmd">eventvwr.msc</span></div><button class="copy-btn" onclick="cp(this,'eventvwr.msc')">Kopiera</button></div>
+      <div class="tip tip-blue">
+        <strong>Vilken logg att titta i:</strong><br>
+        Windows Logs → <strong>System</strong> = drivrutinsfel, hårdvaruproblem, systemkraschar<br>
+        Windows Logs → <strong>Application</strong> = appkraschar, .NET-fel<br>
+        Windows Logs → <strong>Security</strong> = inloggningar, misslyckade autentiseringar<br>
+        Filtrera på <strong>Kritisk / Fel</strong> och matcha tidpunkt mot symptomet.
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">PowerShell – filtrera loggar</div><div class="card-when">När du snabbt behöver filtrera utan att klicka i GUI</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Senaste 20 System-händelser</span><span class="cmd">Get-EventLog -LogName System -Newest 20</span></div><button class="copy-btn" onclick="cp(this,'Get-EventLog -LogName System -Newest 20')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Bara fel senaste timmen</span><span class="cmd">Get-WinEvent -FilterHashtable @{LogName='System';Level=1,2;StartTime=(Get-Date).AddHours(-1)}</span></div><button class="copy-btn" onclick="cp(this,'Get-WinEvent -FilterHashtable @{LogName=&#39;System&#39;;Level=1,2;StartTime=(Get-Date).AddHours(-1)}')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Appkrascher</span><span class="cmd">Get-EventLog -LogName Application -EntryType Error -Newest 10</span></div><button class="copy-btn" onclick="cp(this,'Get-EventLog -LogName Application -EntryType Error -Newest 10')">Kopiera</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- W: REGISTRET -->
+<div class="section" id="w-reg">
+  <div class="sec-header">
+    <div class="sec-title">Registret – Windows</div>
+    <div class="sec-when"><strong>Använd när</strong> du ska hantera autostart-poster, redigera appkonfiguration som saknar GUI, eller felsöka problem orsakade av felaktiga registervärden. <strong>Exportera alltid berörd nyckel innan du ändrar.</strong></div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Viktiga nyckelplatser</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-red"><strong>Risk:</strong> Fel i registret kan göra Windows ostartbart. Exportera alltid: Arkiv → Exportera i regedit, eller använd reg export.</div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Öppna registereditorn</span><span class="cmd">regedit</span></div><button class="copy-btn" onclick="cp(this,'regedit')">Kopiera</button></div>
+      <div class="tip tip-blue">
+        <strong>Nyckelplatser att känna till:</strong><br>
+        HKCU\Software\Microsoft\Windows\CurrentVersion\Run – autostart denna användare<br>
+        HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run – autostart alla användare<br>
+        HKLM\SYSTEM\CurrentControlSet – drivrutiner och tjänstkonfiguration<br>
+        HKLM\SOFTWARE – installerade program (alla användare)
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">reg-kommandon – CMD</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Exportera nyckel (gör alltid detta FÖRST)</span><span class="cmd">reg export HKLM\SOFTWARE\MyKey backup.reg</span></div><button class="copy-btn" onclick="cp(this,'reg export HKLM\\SOFTWARE\\MyKey backup.reg')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Importera/återställ nyckel</span><span class="cmd">reg import backup.reg</span></div><button class="copy-btn" onclick="cp(this,'reg import backup.reg')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Läs ett värde</span><span class="cmd">reg query HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion</span></div><button class="copy-btn" onclick="cp(this,'reg query HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Lägg till autostart-post</span><span class="cmd">reg add "HKCU\...\Run" /v App /t REG_SZ /d "C:\app.exe"</span></div><button class="copy-btn" onclick="cp(this,'reg add &quot;HKCU\\...\\Run&quot; /v App /t REG_SZ /d &quot;C:\\app.exe&quot;')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Ta bort autostart-post</span><span class="cmd">reg delete "HKCU\...\Run" /v App /f</span></div><button class="copy-btn" onclick="cp(this,'reg delete &quot;HKCU\\...\\Run&quot; /v App /f')">Kopiera</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- W: BEHÖRIGHETER -->
+<div class="section" id="w-perm">
+  <div class="sec-header">
+    <div class="sec-title">Behörigheter – Windows</div>
+    <div class="sec-when"><strong>Använd när</strong> en användare inte kan öppna/redigera filer, du ska ta kontroll över skyddade mappar, eller hantera lokala användarkonton och grupptillhörighet.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Filbehörigheter – icacls</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Visa nuvarande behörigheter</span><span class="cmd">icacls C:\mapp</span></div><button class="copy-btn" onclick="cp(this,'icacls C:\\mapp')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Ta äganderätt (nödvändigt innan icacls på skyddad mapp)</span><span class="cmd">takeown /f C:\mapp /r /d y</span></div><button class="copy-btn" onclick="cp(this,'takeown /f C:\\mapp /r /d y')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Ge fullständig behörighet</span><span class="cmd">icacls C:\mapp /grant Användare:(F)</span></div><button class="copy-btn" onclick="cp(this,'icacls C:\\mapp /grant Användare:(F)')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Återställ behörigheter till ärvda</span><span class="cmd">icacls C:\mapp /reset /T</span><span class="desc">/T = rekursivt på alla undermappar</span></div><button class="copy-btn" onclick="cp(this,'icacls C:\\mapp /reset /T')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Användare &amp; grupper</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Lista alla lokala konton</span><span class="cmd">net user</span></div><button class="copy-btn" onclick="cp(this,'net user')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Info om specifik användare</span><span class="cmd">net user Användarnamn</span><span class="desc">Visar senaste inloggning, grupper, lösenordsstatus</span></div><button class="copy-btn" onclick="cp(this,'net user Användarnamn')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Lägg till användare som lokal admin</span><span class="cmd">net localgroup administrators Användare /add</span></div><button class="copy-btn" onclick="cp(this,'net localgroup administrators Användare /add')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Nuvarande användares rättigheter</span><span class="cmd">whoami /all</span></div><button class="copy-btn" onclick="cp(this,'whoami /all')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Aktivera inbyggt administratörskonto</span><span class="cmd">net user administrator /active:yes</span></div><button class="copy-btn" onclick="cp(this,'net user administrator /active:yes')">Kopiera</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- W: SYSTEMREPARATION -->
+<div class="section" id="w-rep">
+  <div class="sec-header">
+    <div class="sec-title">Systemreparation – Windows</div>
+    <div class="sec-when"><strong>Använd när</strong> Windows beter sig konstigt, systemfiler verkar korrupta, Windows Update slutar fungera, eller efter en BSOD. Kör alltid som administratör.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">SFC &amp; DISM – i rätt ordning</div><div class="card-when">DISM alltid före SFC – de är beroende av varandra</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-blue"><strong>Rätt ordning:</strong> DISM /restorehealth → omstart → sfc /scannow. DISM reparerar komponentlagret som SFC är beroende av. Byta ordning ger sämre resultat.</div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">Steg 1 → Reparera komponentlagret</span><span class="cmd">dism /online /cleanup-image /restorehealth</span><span class="desc">Laddar ner rena filer från Windows Update. Kräver internet.</span></div><button class="copy-btn" onclick="cp(this,'dism /online /cleanup-image /restorehealth')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">Steg 2 → Kontrollera snabbt om det behövs reparation</span><span class="cmd">dism /online /cleanup-image /checkhealth</span></div><button class="copy-btn" onclick="cp(this,'dism /online /cleanup-image /checkhealth')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">Steg 3 → Reparera systemfiler</span><span class="cmd">sfc /scannow</span><span class="desc">Kör efter DISM. Rapporterar och ersätter korrupta Windows-systemfiler.</span></div><button class="copy-btn" onclick="cp(this,'sfc /scannow')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Bara kontrollera utan att reparera</span><span class="cmd">sfc /verifyonly</span></div><button class="copy-btn" onclick="cp(this,'sfc /verifyonly')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Rensa gamla komponenter efter reparation</span><span class="cmd">dism /online /cleanup-image /startcomponentcleanup</span><span class="desc">Frigör diskutrymme – kör sist</span></div><button class="copy-btn" onclick="cp(this,'dism /online /cleanup-image /startcomponentcleanup')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">RAM-test &amp; energianalys</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Testa RAM (kör vid BSOD)</span><span class="cmd">mdsched.exe</span><span class="desc">Schemalägger minnestest till nästa omstart</span></div><button class="copy-btn" onclick="cp(this,'mdsched.exe')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Varför vaknar inte datorn? Energianalys</span><span class="cmd">powercfg /energy</span><span class="desc">Genererar HTML-rapport med energiproblem</span></div><button class="copy-btn" onclick="cp(this,'powercfg /energy')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Batterikapacitetshistorik</span><span class="cmd">powercfg /batteryreport</span></div><button class="copy-btn" onclick="cp(this,'powercfg /batteryreport')">Kopiera</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- W: KORTKOMMANDON -->
+<div class="section" id="w-keys">
+  <div class="sec-header">
+    <div class="sec-title">Kortkommandon &amp; Win+R snabbval</div>
+    <div class="sec-when"><strong>Använd</strong> Win+R för att snabbstarta verktyg direkt utan att navigera i menyer. Sparar tid vid varje supportärende.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Tangentbordsgenvägar</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="sk-grid">
+        <div class="sk-row"><span class="sk-key">Win + X</span><span class="sk-desc">Power User Menu – snabb admin-åtkomst</span></div>
+        <div class="sk-row"><span class="sk-key">Ctrl + Shift + Esc</span><span class="sk-desc">Aktivitetshanteraren direkt</span></div>
+        <div class="sk-row"><span class="sk-key">Win + R</span><span class="sk-desc">Kör-dialog – skriv valfritt kommando</span></div>
+        <div class="sk-row"><span class="sk-key">Win + Pause</span><span class="sk-desc">Systemegenskaper – CPU/RAM snabbt</span></div>
+        <div class="sk-row"><span class="sk-key">Win + I</span><span class="sk-desc">Inställningar</span></div>
+        <div class="sk-row"><span class="sk-key">Win + E</span><span class="sk-desc">Utforskaren</span></div>
+        <div class="sk-row"><span class="sk-key">Ctrl + Alt + Del</span><span class="sk-desc">Säkerhetsskärm – Task Manager, lösenord</span></div>
+        <div class="sk-row"><span class="sk-key">Win + L</span><span class="sk-desc">Lås skärmen</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Win + R – snabbkommandon</div><div class="card-when">Kör via Win+R eller direkt i CMD</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">msinfo32</span><span class="desc">Systeminformation</span></div><button class="copy-btn" onclick="cp(this,'msinfo32')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">devmgmt.msc</span><span class="desc">Enhetshanteraren</span></div><button class="copy-btn" onclick="cp(this,'devmgmt.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">eventvwr.msc</span><span class="desc">Händelseloggen</span></div><button class="copy-btn" onclick="cp(this,'eventvwr.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">services.msc</span><span class="desc">Tjänstehanteraren</span></div><button class="copy-btn" onclick="cp(this,'services.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">diskmgmt.msc</span><span class="desc">Diskhanteraren</span></div><button class="copy-btn" onclick="cp(this,'diskmgmt.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">compmgmt.msc</span><span class="desc">Datorhantering (disk+tjänster+logg)</span></div><button class="copy-btn" onclick="cp(this,'compmgmt.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">regedit</span><span class="desc">Registereditorn</span></div><button class="copy-btn" onclick="cp(this,'regedit')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">msconfig</span><span class="desc">Systemkonfiguration (boot, startup)</span></div><button class="copy-btn" onclick="cp(this,'msconfig')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">gpedit.msc</span><span class="desc">Grupprincipeditor (ej Home-versioner)</span></div><button class="copy-btn" onclick="cp(this,'gpedit.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">lusrmgr.msc</span><span class="desc">Lokala användare och grupper</span></div><button class="copy-btn" onclick="cp(this,'lusrmgr.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">ncpa.cpl</span><span class="desc">Nätverksanslutningar</span></div><button class="copy-btn" onclick="cp(this,'ncpa.cpl')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">appwiz.cpl</span><span class="desc">Program och funktioner – avinstallera</span></div><button class="copy-btn" onclick="cp(this,'appwiz.cpl')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">sysdm.cpl</span><span class="desc">Systemegenskaper (datornamn, avancerat)</span></div><button class="copy-btn" onclick="cp(this,'sysdm.cpl')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">%temp%</span><span class="desc">Temp-mappen – rensa vid prestandaproblem</span></div><button class="copy-btn" onclick="cp(this,'%temp%')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">shell:startup</span><span class="desc">Startup-mapp för inloggad användare</span></div><button class="copy-btn" onclick="cp(this,'shell:startup')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">%appdata%</span><span class="desc">AppData\Roaming</span></div><button class="copy-btn" onclick="cp(this,'%appdata%')">Kopiera</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- W: VARNINGSTECKEN -->
+<div class="section" id="w-warn">
+  <div class="sec-header">
+    <div class="sec-title">Varningstecken – Windows</div>
+    <div class="sec-when"><strong>Reagera omedelbart</strong> på dessa symptom. De pekar mot allvarliga problem som kan eskalera snabbt.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Disk &amp; hårdvara</div></div><span class="badge b-red">Kritiskt</span><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-red"><strong>wmic diskdrive get status → "Pred Fail"</strong> – disken håller på att ge upp. Backup omedelbart, planera utbyte idag.</div>
+      <div class="tip tip-red"><strong>chkdsk /r hittar dåliga sektorer</strong> – fysiska diskproblem. Backup och ersätt.</div>
+      <div class="tip tip-red"><strong>Enhet saknas helt i Enhetshanteraren</strong> – BIOS eller hårdvarufel. Kontrollera BIOS Port Options, kör HP Diagnostics F2.</div>
+      <div class="tip tip-amber"><strong>100% disk i Task Manager konstant</strong> – troligast SysMain/Superfetch eller Windows Search. Stoppa SysMain-tjänsten och testa.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">BSOD &amp; krascher</div></div><span class="badge b-red">Kritiskt</span><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-red"><strong>BSOD upprepas</strong> – notera felkod. IRQL_NOT_LESS_OR_EQUAL = drivrutin, MEMORY_MANAGEMENT = RAM, PAGE_FAULT = disk eller RAM. Kolla händelseloggen runt krasch-tidpunkten.</div>
+      <div class="tip tip-amber"><strong>svchost.exe 100% CPU</strong> – högerklicka i Task Manager → Gå till tjänster. Oftast Windows Update (wuauserv) eller WMI Provider Host.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Nätverk &amp; säkerhet</div></div><span class="badge b-amber">Viktigt</span><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-amber"><strong>ping 8.8.8.8 funkar, ping google.com inte</strong> – DNS-problem. Kör ipconfig /flushdns och testa med manuell DNS (8.8.8.8).</div>
+      <div class="tip tip-red"><strong>Okända processer i netstat -b med utgående trafik</strong> – undersök genast. Möjlig skadlig kod.</div>
+      <div class="tip tip-amber"><strong>Gult utropstecken i Enhetshanteraren</strong> – drivrutinsfel. Avinstallera och kör pnputil /scan-devices.</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /pw -->
+
+<!-- ══════════════════════════════════════════ MACOS ══ -->
+<div class="os-panel" id="pm">
+
+<!-- M: FLÖDEN -->
+<div class="section active mac-panel" id="m-flow">
+  <div class="sec-header">
+    <div class="sec-title">Felsökningsflöden – macOS</div>
+    <div class="sec-when"><strong>Använd dessa när</strong> du ställs inför ett vanligt macOS-ärende och behöver ett strukturerat angreppssätt. Din Mac: MacBook Pro M1 – Apple Silicon, inga fläktar.</div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)">
+      <div style="flex:1"><div class="card-title">Mac är långsam / hänger sig</div><div class="card-when">Situation: Tröghet, spinning wheel, appar svarar inte</div></div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Öppna Activity Monitor och identifiera</div><div class="step-cmd">Activity Monitor → CPU-kolumnen</div><div class="step-note">Sortera på %CPU. Ser du kernel_task högt upp? Det är termisk throttling – Mac:en är för varm, inte ett fel.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Kolla minnesanvändning</div><div class="step-cmd">vm_stat</div><div class="step-note">Hög "Pages out" = RAM är fullt. 8 GB M1 kan pressas hårt. Stäng appar.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Force-avsluta hängd app</div><div class="step-cmd">killall "Appnamn"</div><div class="step-note">Eller Cmd+Option+Esc för Force Quit-menyn</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Kontrollera diskutrymme</div><div class="step-cmd">df -h</div><div class="step-note">macOS behöver minst 10–15% fri disk. Under det börjar systemet bli trött.</div></div></div>
+        <div class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">Om M1 fortfarande är varm – svalna och testa</div><div class="step-note">M1 har inga fläktar. Lämna Mac:en av i 10 min. Kontrollera att ventilationsöppningar inte täcks.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)">
+      <div style="flex:1"><div class="card-title">Ingen internet / nätverksproblem</div><div class="card-when">Situation: Kan inte ansluta, tappar Wi-Fi, DNS-problem</div></div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Isolera – DNS eller routing?</div><div class="step-cmd">ping -c 4 8.8.8.8</div><div class="step-note">Fungerar detta men inte ping google.com → DNS. Fungerar inte alls → routing/gateway-problem.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Rensa DNS-cache</div><div class="step-cmd">sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder</div><div class="step-note">Kör båda. Löser de flesta DNS-problem.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Kontrollera nätverksinställningar</div><div class="step-cmd">networksetup -getinfo "Wi-Fi"</div><div class="step-note">Verifierar IP, subnet och router är korrekt satta</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Ta bort och lägg till Wi-Fi-nät igen</div><div class="step-note">System Settings → Wi-Fi → Glöm det här nätverket → anslut igen</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)">
+      <div style="flex:1"><div class="card-title">App kraschar eller startar inte</div><div class="card-when">Situation: App öppnas inte, stänger sig direkt, konstanta fel</div></div>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Kontrollera kraschrapport</div><div class="step-cmd">~/Library/Logs/DiagnosticReports/</div><div class="step-note">Hitta .crash-filen med appens namn och notera felbeskrivningen</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Kolla systemloggar runt krasch-tidpunkten</div><div class="step-cmd">log show --last 30m --level error</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Rensa appens preferensfil</div><div class="step-cmd">defaults delete com.appens.bundleid</div><div class="step-note">Eller ta bort plist-filen från ~/Library/Preferences/ manuellt</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Avinstallera och installera om appen</div><div class="step-note">Dra till papperskorgen, töm, installera om från källan</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- M: BOOT -->
+<div class="section mac-panel" id="m-boot">
+  <div class="sec-header">
+    <div class="sec-title">Boot &amp; Recovery – macOS M1</div>
+    <div class="sec-when"><strong>Observera:</strong> M1 (din Mac) skiljer sig fundamentalt från Intel. Inga fläktar, annat boot-flöde, NVRAM återställs automatiskt.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Startlägen – M1</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Visa startalternativ / Safe Mode</span><span class="cmd">Håll strömknappen tills startalternativ visas</span><span class="desc">Välj volym + Shift-klick = Safe Mode. Fungerar bara på M1 – inte Cmd+R vid start.</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Recovery Mode</span><span class="cmd">Cmd + R (håll inne vid start)</span><span class="desc">Terminal, Disk Utility, ominstallation av macOS</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Internet Recovery (laddar ner macOS)</span><span class="cmd">Cmd + Option + R</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ SIP-status (bör alltid vara enabled)</span><span class="cmd">csrutil status</span></div><button class="copy-btn" onclick="cp(this,'csrutil status')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">NVRAM – M1 vs Intel</div></div><span class="badge b-amber">M1 annorlunda</span><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-amber">På M1 kan du <strong>inte</strong> manuellt trigga NVRAM-reset (Cmd+Option+P+R). Det sker automatiskt vid behov. Stäng av → vänta 30 sek → starta om är den manuella varianten.</div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Visa NVRAM-variabler</span><span class="cmd">sudo nvram -p</span></div><button class="copy-btn" onclick="cp(this,'sudo nvram -p')">Kopiera</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- M: PROCESSER -->
+<div class="section mac-panel" id="m-proc">
+  <div class="sec-header">
+    <div class="sec-title">Processer &amp; CPU – macOS</div>
+    <div class="sec-when"><strong>Använd när</strong> Mac:en är trög, en app hänger, du behöver force-avsluta processer, eller vill förstå varför kernel_task äter CPU.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Övervaka &amp; hantera processer</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Live CPU-topp</span><span class="cmd">top -o cpu</span><span class="desc">q = avsluta. Sorterar på CPU-förbrukning i realtid.</span></div><button class="copy-btn" onclick="cp(this,'top -o cpu')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Live RAM-topp</span><span class="cmd">top -o rsize</span></div><button class="copy-btn" onclick="cp(this,'top -o rsize')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Minnesstatistik – page faults</span><span class="cmd">vm_stat</span><span class="desc">Hög "Pages out" = för lite RAM. Viktigt på 8 GB M1.</span></div><button class="copy-btn" onclick="cp(this,'vm_stat')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Hitta specifik process</span><span class="cmd">pgrep -fl "Safari"</span></div><button class="copy-btn" onclick="cp(this,'pgrep -fl &quot;Safari&quot;')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Force kill via namn</span><span class="cmd">killall "Appnamn"</span></div><button class="copy-btn" onclick="cp(this,'killall &quot;Appnamn&quot;')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Force kill via PID</span><span class="cmd">kill -9 PID</span></div><button class="copy-btn" onclick="cp(this,'kill -9 PID')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ CPU + temperatur (admin)</span><span class="cmd">sudo powermetrics --samplers cpu_power -i 1000</span></div><button class="copy-btn" onclick="cp(this,'sudo powermetrics --samplers cpu_power -i 1000')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">kernel_task – vad är det?</div></div><span class="badge b-red">Viktigt</span><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-red"><strong>kernel_task på 300%+ CPU är inte ett fel.</strong> Det är macOS termiska skydd – chipet är för varmt och kernel_task stryper prestandan medvetet. M1 har inga fläktar. Lösning: stäng tunga appar, låt Mac:en svalna. Det är inget du ska force-killa.</div>
+    </div>
+  </div>
+</div>
+
+<!-- M: DISK -->
+<div class="section mac-panel" id="m-disk">
+  <div class="sec-header">
+    <div class="sec-title">Disk &amp; Lagring – macOS</div>
+    <div class="sec-when"><strong>Använd när</strong> disk är full, du misstänker filsystemsfel, eller ska kontrollera diskens integritet.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Diskinfo &amp; utrymme</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Diskutrymme per volym</span><span class="cmd">df -h</span></div><button class="copy-btn" onclick="cp(this,'df -h')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Vad tar plats i Downloads?</span><span class="cmd">du -sh ~/Downloads/*</span></div><button class="copy-btn" onclick="cp(this,'du -sh ~/Downloads/*')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Lista alla diskar och partitioner</span><span class="cmd">diskutil list</span></div><button class="copy-btn" onclick="cp(this,'diskutil list')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Reparation (= chkdsk)</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Verifiera utan att reparera</span><span class="cmd">diskutil verifyVolume /</span></div><button class="copy-btn" onclick="cp(this,'diskutil verifyVolume /')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Reparera volym</span><span class="cmd">diskutil repairVolume disk1s1</span><span class="desc">Identifierare från diskutil list. Root-disk: kör från Recovery Mode.</span></div><button class="copy-btn" onclick="cp(this,'diskutil repairVolume disk1s1')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Filsystemkontroll (Recovery Mode)</span><span class="cmd">fsck -fy /dev/disk0s1</span></div><button class="copy-btn" onclick="cp(this,'fsck -fy /dev/disk0s1')">Kopiera</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- M: NÄTVERK -->
+<div class="section mac-panel" id="m-net">
+  <div class="sec-header">
+    <div class="sec-title">Nätverk – macOS</div>
+    <div class="sec-when"><strong>Använd när</strong> Mac:en saknar internet, DNS-problem, behöver diagnostisera anslutningen eller identifiera vad som lyssnar på en port.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Diagnos – börja här</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ IP, subnet, router för Wi-Fi</span><span class="cmd">networksetup -getinfo "Wi-Fi"</span></div><button class="copy-btn" onclick="cp(this,'networksetup -getinfo &quot;Wi-Fi&quot;')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Testa internet (kringgår DNS)</span><span class="cmd">ping -c 4 8.8.8.8</span></div><button class="copy-btn" onclick="cp(this,'ping -c 4 8.8.8.8')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Rensa DNS-cache</span><span class="cmd">sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder</span></div><button class="copy-btn" onclick="cp(this,'sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Rutt till destination</span><span class="cmd">traceroute google.com</span></div><button class="copy-btn" onclick="cp(this,'traceroute google.com')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Kontrollera HTTP-svar</span><span class="cmd">curl -I https://sajt.se</span></div><button class="copy-btn" onclick="cp(this,'curl -I https://sajt.se')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Portar &amp; anslutningar</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Vad lyssnar på en specifik port?</span><span class="cmd">lsof -i :8080</span></div><button class="copy-btn" onclick="cp(this,'lsof -i :8080')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Alla aktiva TCP-anslutningar</span><span class="cmd">lsof -i tcp</span></div><button class="copy-btn" onclick="cp(this,'lsof -i tcp')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Realtid nätverkstrafik per process</span><span class="cmd">nettop</span></div><button class="copy-btn" onclick="cp(this,'nettop')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Paketfångst (= Wireshark CLI)</span><span class="cmd">sudo tcpdump -i en0</span></div><button class="copy-btn" onclick="cp(this,'sudo tcpdump -i en0')">Kopiera</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- M: LOGGAR -->
+<div class="section mac-panel" id="m-log">
+  <div class="sec-header">
+    <div class="sec-title">Loggar – macOS</div>
+    <div class="sec-when"><strong>Använd när</strong> du behöver förstå varför något gick fel, en app kraschar, eller spåra systembeteende över tid. Console.app är enklare att filtrera visuellt.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">log show – filtrera systemloggar</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Alla loggar senaste timmen</span><span class="cmd">log show --last 1h</span></div><button class="copy-btn" onclick="cp(this,'log show --last 1h')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Bara fel senaste 30 minuterna</span><span class="cmd">log show --last 30m --level error</span></div><button class="copy-btn" onclick="cp(this,'log show --last 30m --level error')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Loggar för specifik app</span><span class="cmd">log show --predicate 'process == "Safari"' --last 1h</span></div><button class="copy-btn" onclick='cp(this,"log show --predicate &apos;process == \&quot;Safari\&quot;&apos; --last 1h")'>Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Live-loggström</span><span class="cmd">log stream</span><span class="desc">Visar alla händelser i realtid – Ctrl+C avslutar</span></div><button class="copy-btn" onclick="cp(this,'log stream')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Kraschloggar – sökvägar</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Kraschrapporter per app</span><span class="cmd">~/Library/Logs/DiagnosticReports/</span><span class="desc">.crash-filer – öppna i textredigerare och leta efter "Exception"</span></div><button class="copy-btn" onclick="cp(this,'open ~/Library/Logs/DiagnosticReports/')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Systembreda kraschrapporter</span><span class="cmd">/Library/Logs/DiagnosticReports/</span></div><button class="copy-btn" onclick="cp(this,'open /Library/Logs/DiagnosticReports/')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Apploggar för användare</span><span class="cmd">~/Library/Logs/</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- M: BEHÖRIGHETER -->
+<div class="section mac-panel" id="m-perm">
+  <div class="sec-header">
+    <div class="sec-title">Behörigheter &amp; Användare – macOS</div>
+    <div class="sec-when"><strong>Använd när</strong> en användare inte kan komma åt filer, du behöver hantera behörigheter eller kontrollera säkerhetsstatus.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Filbehörigheter</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Visa behörigheter</span><span class="cmd">ls -la</span></div><button class="copy-btn" onclick="cp(this,'ls -la')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Vanliga behörigheter för fil</span><span class="cmd">chmod 644 fil</span><span class="desc">rw-r--r-- – ägare kan läsa/skriva, övriga bara läsa</span></div><button class="copy-btn" onclick="cp(this,'chmod 644 fil')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Vanliga behörigheter för mapp/script</span><span class="cmd">chmod 755 mapp</span><span class="desc">rwxr-xr-x – ägare full, övriga läs+kör</span></div><button class="copy-btn" onclick="cp(this,'chmod 755 mapp')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Byt ägare rekursivt</span><span class="cmd">chown -R user ~/mapp</span></div><button class="copy-btn" onclick="cp(this,'chown -R user ~/mapp')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Säkerhetsstatus</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ SIP på eller av? (ska vara on)</span><span class="cmd">csrutil status</span></div><button class="copy-btn" onclick="cp(this,'csrutil status')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Gatekeeper-status</span><span class="cmd">spctl --status</span></div><button class="copy-btn" onclick="cp(this,'spctl --status')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Lista alla lokala användarkonton</span><span class="cmd">dscl . list /Users</span></div><button class="copy-btn" onclick="cp(this,'dscl . list /Users')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Nuvarande användare och grupper</span><span class="cmd">id</span></div><button class="copy-btn" onclick="cp(this,'id')">Kopiera</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- M: TJÄNSTER -->
+<div class="section mac-panel" id="m-svc">
+  <div class="sec-header">
+    <div class="sec-title">Tjänster – macOS</div>
+    <div class="sec-when"><strong>Använd när</strong> en bakgrundstjänst beter sig fel, du misstänker att en LaunchAgent är skadlig, eller behöver starta/stoppa systemtjänster.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">launchctl – tjänstehantering</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-blue">macOS har inget Services.msc. Alla tjänster hanteras via launchctl och plist-filer. LaunchAgents = användarnivå, LaunchDaemons = systemnivå.</div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Lista alla körande tjänster</span><span class="cmd">launchctl list</span></div><button class="copy-btn" onclick="cp(this,'launchctl list')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Filtrera specifik tjänst</span><span class="cmd">launchctl list | grep -i "apple"</span></div><button class="copy-btn" onclick="cp(this,'launchctl list | grep -i &quot;apple&quot;')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Stoppa tjänst</span><span class="cmd">launchctl stop com.apple.Spotlight</span></div><button class="copy-btn" onclick="cp(this,'launchctl stop com.apple.Spotlight')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Force-restart tjänst (Monterey+)</span><span class="cmd">launchctl kickstart -k system/com.apple.Spotlight</span></div><button class="copy-btn" onclick="cp(this,'launchctl kickstart -k system/com.apple.Spotlight')">Kopiera</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">LaunchAgents-platser</div><div class="card-when">Kontrollera vid misstänkt adware/malware</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <table>
+        <tr><th>Plats</th><th>Scope</th><th>Kontrollera om</th></tr>
+        <tr><td class="mono">~/Library/LaunchAgents/</td><td>Inloggad användare</td><td>Okända plist-filer med konstiga namn</td></tr>
+        <tr><td class="mono">/Library/LaunchAgents/</td><td>Alla användare</td><td>Program installerat för alla</td></tr>
+        <tr><td class="mono">/Library/LaunchDaemons/</td><td>System (root)</td><td>Systemtjänster med root-åtkomst</td></tr>
+        <tr><td class="mono">/System/Library/LaunchDaemons/</td><td>Apple-system</td><td>Rör normalt ej dessa</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- M: XREF -->
+<div class="section mac-panel" id="m-xref">
+  <div class="sec-header">
+    <div class="sec-title">Windows → macOS referens</div>
+    <div class="sec-when"><strong>Använd</strong> som snabbreferens när du vet vad du söker i Windows men behöver macOS-motsvarigheten.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Verktygsöversättning</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <table>
+        <tr><th>Windows</th><th>macOS-motsvarighet</th></tr>
+        <tr><td class="mono">Task Manager</td><td>Activity Monitor (Utilities)</td></tr>
+        <tr><td class="mono">Event Viewer</td><td>Console.app + log show</td></tr>
+        <tr><td class="mono">Device Manager</td><td>System Information (system_profiler)</td></tr>
+        <tr><td class="mono">Kontrollpanelen</td><td>System Settings</td></tr>
+        <tr><td class="mono">Credential Manager</td><td>Keychain Access (Utilities)</td></tr>
+        <tr><td class="mono">Diskhanteraren</td><td>Disk Utility (Utilities)</td></tr>
+        <tr><td class="mono">regedit</td><td>plist-filer + defaults-kommando i Terminal</td></tr>
+        <tr><td class="mono">Services.msc</td><td>launchctl i Terminal</td></tr>
+        <tr><td class="mono">msinfo32</td><td>system_profiler SPHardwareDataType</td></tr>
+        <tr><td class="mono">ipconfig /all</td><td>networksetup -getinfo "Wi-Fi"</td></tr>
+        <tr><td class="mono">ipconfig /flushdns</td><td>dscacheutil -flushcache + killall mDNSResponder</td></tr>
+        <tr><td class="mono">tracert</td><td>traceroute</td></tr>
+        <tr><td class="mono">chkdsk</td><td>diskutil repairVolume / fsck</td></tr>
+        <tr><td class="mono">taskkill /F</td><td>kill -9 / killall</td></tr>
+        <tr><td class="mono">Ctrl+Shift+Esc</td><td>Cmd+Option+Esc (Force Quit-menyn)</td></tr>
+        <tr><td class="mono">netstat -b</td><td>lsof -i tcp</td></tr>
+        <tr><td class="mono">sfc /scannow</td><td>Ingen direkt motsvarighet – diskutil verifyVolume</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- M: VARNINGSTECKEN -->
+<div class="section mac-panel" id="m-warn">
+  <div class="sec-header">
+    <div class="sec-title">Varningstecken – macOS</div>
+    <div class="sec-when"><strong>Reagera omedelbart</strong> på dessa symptom.</div>
+  </div>
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">CPU, RAM &amp; disk</div></div><span class="badge b-red">Kritiskt</span><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-red"><strong>kernel_task 300%+ CPU</strong> – termisk throttling, inte ett fel. Svalna Mac:en. Kör inga process-kills.</div>
+      <div class="tip tip-amber"><strong>Hög "Pages out" i vm_stat</strong> – 8 GB M1 RAM är fullt. Stäng tunga appar, särskilt webbläsare och Electron-appar.</div>
+      <div class="tip tip-red"><strong>diskutil verifyVolume rapporterar fel</strong> – kör repairVolume. Om det inte hjälper: backup omedelbart.</div>
+      <div class="tip tip-amber"><strong>df -h visar under 10% ledigt</strong> – macOS behöver ~10-15% fri disk. Rensa aktivt.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Säkerhet</div></div><span class="badge b-red">Kritiskt</span><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-red"><strong>csrutil status visar "disabled"</strong> – SIP är av. Ska normalt alltid vara enabled. Aktivera från Recovery Mode.</div>
+      <div class="tip tip-red"><strong>Okända plist-filer i ~/Library/LaunchAgents/</strong> – kan vara adware eller malware som persisterar vid login. Undersök noggrant innan du tar bort.</div>
+      <div class="tip tip-amber"><strong>Gatekeeper inaktiverat (spctl --status = disabled)</strong> – aktivera: sudo spctl --master-enable</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /pm -->
+
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+// ── OS SWITCH ──
+function switchOS(os){
+  document.getElementById('pw').classList.toggle('active',os==='win');
+  document.getElementById('pm').classList.toggle('active',os==='mac');
+  document.getElementById('sw').style.display=os==='win'?'':'none';
+  document.getElementById('sm').style.display=os==='mac'?'':'none';
+  document.getElementById('bw').className='os-pill win'+(os==='win'?' active':'');
+  document.getElementById('bm').className='os-pill mac'+(os==='mac'?' active':'');
+  clearSearch();
+}
+
+// ── TAB NAVIGATION ──
+function st(os,id,btn){
+  var panel=document.getElementById('p'+os[0]);
+  panel.querySelectorAll('.section').forEach(function(s){s.classList.remove('active')});
+  document.getElementById('s'+os[0]).querySelectorAll('.nav-item').forEach(function(b){b.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  clearSearch();
+}
+
+// ── ACCORDION ──
+function tog(h){h.parentElement.classList.toggle('open')}
+
+// ── COPY ──
+function cp(btn,text){
+  navigator.clipboard.writeText(text).then(function(){
+    var orig=btn.textContent;
+    btn.textContent='Kopierat!';
+    btn.classList.add('copied');
+    setTimeout(function(){btn.textContent=orig;btn.classList.remove('copied')},1500);
+  }).catch(function(){
+    // fallback
+    var ta=document.createElement('textarea');
+    ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    btn.textContent='Kopierat!';btn.classList.add('copied');
+    setTimeout(function(){btn.textContent='Kopiera';btn.classList.remove('copied')},1500);
+  });
+}
+
+// ── SEARCH ──
+var searchTimer=null;
+function doSearch(q){
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(function(){runSearch(q)},150);
+}
+
+function clearSearch(){
+  document.getElementById('search').value='';
+  document.getElementById('search-results').style.display='none';
+  document.getElementById('no-results').style.display='none';
+  // show normal sections
+  var activeOS=document.getElementById('bw').classList.contains('active')?'win':'mac';
+  var panel=document.getElementById('p'+activeOS[0]);
+  panel.querySelectorAll('.section').forEach(function(s){
+    // keep whichever was active
+  });
+}
+
+function runSearch(q){
+  q=q.trim();
+  var sr=document.getElementById('search-results');
+  var nr=document.getElementById('no-results');
+  var activeOS=document.getElementById('bw').classList.contains('active')?'win':'mac';
+  var panel=document.getElementById('p'+activeOS[0]);
+
+  if(!q){
+    sr.style.display='none';nr.style.display='none';
+    panel.querySelectorAll('.section').forEach(function(s){});
+    return;
+  }
+
+  var ql=q.toLowerCase();
+  var results=[];
+
+  // Search in all cmd-rows in active panel
+  panel.querySelectorAll('.section').forEach(function(sec){
+    var secTitle=sec.querySelector('.sec-title');
+    var secName=secTitle?secTitle.textContent:'';
+    sec.querySelectorAll('.cmd-row').forEach(function(row){
+      var text=row.textContent.toLowerCase();
+      if(text.indexOf(ql)>=0){
+        var cmdEl=row.querySelector('.cmd');
+        var descEl=row.querySelector('.desc');
+        var sitEl=row.querySelector('.cmd-situation');
+        var cmdText=cmdEl?cmdEl.textContent:'';
+        var descText=descEl?descEl.textContent:'';
+        var sitText=sitEl?sitEl.textContent:'';
+        // Also check card title
+        var card=row.closest('.card');
+        var cardTitle=card?card.querySelector('.card-title'):'';
+        var cardName=cardTitle?cardTitle.textContent:'';
+        results.push({sec:secName,card:cardName,cmd:cmdText,desc:descText,sit:sitText,row:row});
+      }
+    });
+    // Also search in flow steps
+    sec.querySelectorAll('.flow-step').forEach(function(step){
+      var text=step.textContent.toLowerCase();
+      if(text.indexOf(ql)>=0){
+        var labelEl=step.querySelector('.step-label');
+        var cmdEl=step.querySelector('.step-cmd');
+        var noteEl=step.querySelector('.step-note');
+        results.push({
+          sec:secName,card:'Felsökningsflöde',
+          cmd:cmdEl?cmdEl.textContent:'',
+          desc:noteEl?noteEl.textContent:'',
+          sit:labelEl?labelEl.textContent:'',
+          row:null
+        });
+      }
+    });
+  });
+
+  if(results.length===0){
+    sr.style.display='none';nr.style.display='block';return;
+  }
+  nr.style.display='none';
+
+  function hl(text){
+    var re=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+    return text.replace(re,'<span class="hl">$1</span>');
+  }
+
+  var html='<div style="font-size:11px;color:var(--text3);margin-bottom:10px;">'+results.length+' träff'+( results.length!==1?'ar':'')+' för "'+q+'"</div>';
+  results.forEach(function(r){
+    html+='<div class="search-result-card">';
+    html+='<div class="src-os">'+hl(r.sec)+'</div>';
+    html+='<div class="src-section">'+hl(r.card)+'</div>';
+    html+='<div class="cmd-row"><div class="cmd-left">';
+    if(r.sit) html+='<span class="cmd-situation">'+hl(r.sit)+'</span>';
+    if(r.cmd) html+='<span class="cmd">'+hl(r.cmd)+'</span>';
+    if(r.desc) html+='<span class="desc">'+hl(r.desc)+'</span>';
+    html+='</div>';
+    if(r.cmd && r.row){
+      var rawCmd=r.row.querySelector('.cmd')?r.row.querySelector('.cmd').textContent:'';
+      html+='<button class="copy-btn" style="opacity:1" onclick="cp(this,\''+rawCmd.replace(/'/g,"\\'")+'\')" >Kopiera</button>';
+    }
+    html+='</div></div>';
+  });
+
+  sr.innerHTML=html;
+  sr.style.display='block';
+}
+</script>
+</body>
+</html>
