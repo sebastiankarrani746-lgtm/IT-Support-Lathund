@@ -250,7 +250,7 @@ tr:hover td{background:var(--bg4)}
     <div class="card-body">
       <div class="flow">
         <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Kolla vad som äter resurser</div><div class="step-cmd">taskmgr</div><div class="step-note">Sortera på CPU och Disk. Noterar du 100% disk? Se steg 3. Hög CPU? Identifiera processen.</div></div></div>
-        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Djupare analys per process</div><div class="step-cmd">resmon</div><div class="step-note">Resursövervakaren visar exakt vilka filer en process läser/skriver – bättre än Task Manager.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Djupare analys per process</div><div class="step-cmd">resmon</div><div class="step-note">Resursövervakaren (Resource Monitor) visar exakt vilka filer en process läser/skriver – bättre än Task Manager / Aktivitetshanteraren.</div></div></div>
         <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Om 100% disk – stäng av SysMain</div><div class="step-cmd">services.msc → SysMain → Stoppa + Inaktivera</div><div class="step-note">SysMain (Superfetch) är vanligaste orsaken till konstant 100% disk på HDD/äldre SSD.</div></div></div>
         <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Rensa temp och frigör disk</div><div class="step-cmd">cleanmgr</div><div class="step-note">Kör Diskrensning. Kontrollera också %temp% och ta bort allt.</div></div></div>
         <div class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">Kontrollera systemfilernas integritet</div><div class="step-cmd">dism /online /cleanup-image /restorehealth</div><div class="step-note">Kör sedan sfc /scannow. Om dessa rapporterar fel är Windows-installationen korrupt.</div></div></div>
@@ -277,14 +277,14 @@ tr:hover td{background:var(--bg4)}
 
   <div class="card">
     <div class="card-header" onclick="tog(this)">
-      <div style="flex:1"><div class="card-title">Drivrutin fungerar inte / enhet saknas</div><div class="card-when">Situation: Gult utropstecken i Enhetshanteraren, USB/portar reagerar inte, enhet saknas helt</div></div>
+      <div style="flex:1"><div class="card-title">Drivrutin fungerar inte / enhet saknas</div><div class="card-when">Situation: Gult utropstecken i Enhetshanteraren (Device Manager), USB/portar reagerar inte, enhet saknas helt</div></div>
       <span class="chevron">▶</span>
     </div>
     <div class="card-body">
       <div class="flow">
-        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Kontrollera Enhetshanteraren noggrant</div><div class="step-cmd">devmgmt.msc → Visa → Visa dolda enheter</div><div class="step-note">Gult utropstecken = drivrutinsfel. Saknas enheten helt → BIOS eller hårdvarufel.</div></div></div>
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Kontrollera Enhetshanteraren (Device Manager) noggrant</div><div class="step-cmd">devmgmt.msc → Visa → Visa dolda enheter</div><div class="step-note">Gult utropstecken = drivrutinsfel. Saknas enheten helt → BIOS eller hårdvarufel.</div></div></div>
         <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Tvinga Windows att söka om drivrutiner</div><div class="step-cmd">pnputil /scan-devices</div><div class="step-note">Kör som admin. Windows söker aktivt efter ansluten hårdvara och försöker installera drivrutiner.</div></div></div>
-        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Om drivrutin slutade fungera efter uppdatering</div><div class="step-cmd">Enhetshanteraren → Egenskaper → Drivrutin → Återställ</div><div class="step-note">Rollback till föregående drivrutin. Fungerar bara om en tidigare version finns sparad.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Om drivrutin slutade fungera efter uppdatering</div><div class="step-cmd">Enhetshanteraren (Device Manager) → Egenskaper → Drivrutin → Återställ</div><div class="step-note">Rollback till föregående drivrutin. Fungerar bara om en tidigare version finns sparad.</div></div></div>
         <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Reparera systemfilerna</div><div class="step-cmd">dism /online /cleanup-image /restorehealth</div><div class="step-note">Korrupta systemfiler kan hindra drivrutiner från att installeras korrekt.</div></div></div>
         <div class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">Om enheten saknas helt – kontrollera BIOS</div><div class="step-cmd">F10 (HP) → Port Options / USB Configuration</div><div class="step-note">Porten kan vara inaktiverad i BIOS. Kör även HP Diagnostics (F2) för hårdvarutest.</div></div></div>
       </div>
@@ -332,10 +332,10 @@ tr:hover td{background:var(--bg4)}
     <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">GUI-verktyg</div><div class="card-when">Öppna via Win + R eller sök i Start</div></div><span class="chevron">▶</span></div>
     <div class="card-body">
       <div class="cmd-row"><div class="cmd-left"><span class="cmd">msinfo32</span><span class="desc">Komplett systemöversikt – OS, hårdvara, drivrutiner, komponenter. Förstahandsvalet för dokumentation.</span></div><button class="copy-btn" onclick="cp(this,'msinfo32')">Kopiera</button></div>
-      <div class="cmd-row"><div class="cmd-left"><span class="cmd">devmgmt.msc</span><span class="desc">Enhetshanteraren – drivrutiner, hårdvara, utropstecken</span></div><button class="copy-btn" onclick="cp(this,'devmgmt.msc')">Kopiera</button></div>
-      <div class="cmd-row"><div class="cmd-left"><span class="cmd">compmgmt.msc</span><span class="desc">Datorhantering – disk, tjänster, händelselogg och lokala användare samlat</span></div><button class="copy-btn" onclick="cp(this,'compmgmt.msc')">Kopiera</button></div>
-      <div class="cmd-row"><div class="cmd-left"><span class="cmd">taskmgr</span><span class="desc">Aktivitetshanteraren – processer, CPU, RAM, disk, nätverk, startup</span></div><button class="copy-btn" onclick="cp(this,'taskmgr')">Kopiera</button></div>
-      <div class="cmd-row"><div class="cmd-left"><span class="cmd">resmon</span><span class="desc">Resursövervakaren – djupare än Task Manager, per-process disk/nätverks-IO</span></div><button class="copy-btn" onclick="cp(this,'resmon')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">devmgmt.msc</span><span class="desc">Enhetshanteraren (Device Manager) – drivrutiner, hårdvara, utropstecken</span></div><button class="copy-btn" onclick="cp(this,'devmgmt.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">compmgmt.msc</span><span class="desc">Datorhantering (Computer Management) – disk, tjänster, händelselogg och lokala användare samlat</span></div><button class="copy-btn" onclick="cp(this,'compmgmt.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">taskmgr</span><span class="desc">Aktivitetshanteraren (Task Manager) – processer, CPU, RAM, disk, nätverk, startup</span></div><button class="copy-btn" onclick="cp(this,'taskmgr')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">resmon</span><span class="desc">Resursövervakaren (Resource Monitor) – djupare än Task Manager / Aktivitetshanteraren, per-process disk/nätverks-IO</span></div><button class="copy-btn" onclick="cp(this,'resmon')">Kopiera</button></div>
     </div>
   </div>
   <div class="card">
@@ -496,7 +496,7 @@ tr:hover td{background:var(--bg4)}
     </div>
   </div>
   <div class="card">
-    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Enhetshanteraren – navigering</div></div><span class="chevron">▶</span></div>
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Enhetshanteraren (Device Manager) – navigering</div></div><span class="chevron">▶</span></div>
     <div class="card-body">
       <div class="tip tip-blue">Gult ! = drivrutinsfel · Röd X = inaktiverad enhet · Nedåtpil = manuellt inaktiverad · Frågemark = okänd enhet</div>
       <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Avslöja dolda/gamla enheter</span><span class="cmd">devmgmt.msc → Visa → Visa dolda enheter</span><span class="desc">Ghostade enheter och gammal hårdvara syns. Viktigt vid USB-felsökning.</span></div></div>
@@ -538,7 +538,7 @@ tr:hover td{background:var(--bg4)}
     <div class="sec-when"><strong>Använd när</strong> du behöver förstå varför något gick fel, hitta tidpunkten för en krasch, eller spåra inloggningsförsök och säkerhetshändelser.</div>
   </div>
   <div class="card open">
-    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Händelseloggen – navigering</div></div><span class="chevron">▶</span></div>
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Händelseloggen (Event Viewer) – navigering</div></div><span class="chevron">▶</span></div>
     <div class="card-body">
       <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Öppna Event Viewer (GUI)</span><span class="cmd">eventvwr.msc</span></div><button class="copy-btn" onclick="cp(this,'eventvwr.msc')">Kopiera</button></div>
       <div class="tip tip-blue">
@@ -657,12 +657,12 @@ tr:hover td{background:var(--bg4)}
     <div class="card-body">
       <div class="sk-grid">
         <div class="sk-row"><span class="sk-key">Win + X</span><span class="sk-desc">Power User Menu – snabb admin-åtkomst</span></div>
-        <div class="sk-row"><span class="sk-key">Ctrl + Shift + Esc</span><span class="sk-desc">Aktivitetshanteraren direkt</span></div>
+        <div class="sk-row"><span class="sk-key">Ctrl + Shift + Esc</span><span class="sk-desc">Aktivitetshanteraren (Task Manager) direkt</span></div>
         <div class="sk-row"><span class="sk-key">Win + R</span><span class="sk-desc">Kör-dialog – skriv valfritt kommando</span></div>
         <div class="sk-row"><span class="sk-key">Win + Pause</span><span class="sk-desc">Systemegenskaper – CPU/RAM snabbt</span></div>
         <div class="sk-row"><span class="sk-key">Win + I</span><span class="sk-desc">Inställningar</span></div>
-        <div class="sk-row"><span class="sk-key">Win + E</span><span class="sk-desc">Utforskaren</span></div>
-        <div class="sk-row"><span class="sk-key">Ctrl + Alt + Del</span><span class="sk-desc">Säkerhetsskärm – Task Manager, lösenord</span></div>
+        <div class="sk-row"><span class="sk-key">Win + E</span><span class="sk-desc">Utforskaren (File Explorer)</span></div>
+        <div class="sk-row"><span class="sk-key">Ctrl + Alt + Del</span><span class="sk-desc">Säkerhetsskärm – Task Manager / Aktivitetshanteraren, lösenord</span></div>
         <div class="sk-row"><span class="sk-key">Win + L</span><span class="sk-desc">Lås skärmen</span></div>
       </div>
     </div>
@@ -670,13 +670,13 @@ tr:hover td{background:var(--bg4)}
   <div class="card open">
     <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Win + R – snabbkommandon</div><div class="card-when">Kör via Win+R eller direkt i CMD</div></div><span class="chevron">▶</span></div>
     <div class="card-body">
-      <div class="cmd-row"><div class="cmd-left"><span class="cmd">msinfo32</span><span class="desc">Systeminformation</span></div><button class="copy-btn" onclick="cp(this,'msinfo32')">Kopiera</button></div>
-      <div class="cmd-row"><div class="cmd-left"><span class="cmd">devmgmt.msc</span><span class="desc">Enhetshanteraren</span></div><button class="copy-btn" onclick="cp(this,'devmgmt.msc')">Kopiera</button></div>
-      <div class="cmd-row"><div class="cmd-left"><span class="cmd">eventvwr.msc</span><span class="desc">Händelseloggen</span></div><button class="copy-btn" onclick="cp(this,'eventvwr.msc')">Kopiera</button></div>
-      <div class="cmd-row"><div class="cmd-left"><span class="cmd">services.msc</span><span class="desc">Tjänstehanteraren</span></div><button class="copy-btn" onclick="cp(this,'services.msc')">Kopiera</button></div>
-      <div class="cmd-row"><div class="cmd-left"><span class="cmd">diskmgmt.msc</span><span class="desc">Diskhanteraren</span></div><button class="copy-btn" onclick="cp(this,'diskmgmt.msc')">Kopiera</button></div>
-      <div class="cmd-row"><div class="cmd-left"><span class="cmd">compmgmt.msc</span><span class="desc">Datorhantering (disk+tjänster+logg)</span></div><button class="copy-btn" onclick="cp(this,'compmgmt.msc')">Kopiera</button></div>
-      <div class="cmd-row"><div class="cmd-left"><span class="cmd">regedit</span><span class="desc">Registereditorn</span></div><button class="copy-btn" onclick="cp(this,'regedit')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">msinfo32</span><span class="desc">Systeminformation (System Information)</span></div><button class="copy-btn" onclick="cp(this,'msinfo32')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">devmgmt.msc</span><span class="desc">Enhetshanteraren (Device Manager)</span></div><button class="copy-btn" onclick="cp(this,'devmgmt.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">eventvwr.msc</span><span class="desc">Händelseloggen (Event Viewer)</span></div><button class="copy-btn" onclick="cp(this,'eventvwr.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">services.msc</span><span class="desc">Tjänstehanteraren (Services)</span></div><button class="copy-btn" onclick="cp(this,'services.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">diskmgmt.msc</span><span class="desc">Diskhanteraren (Disk Management)</span></div><button class="copy-btn" onclick="cp(this,'diskmgmt.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">compmgmt.msc</span><span class="desc">Datorhantering (Computer Management)</span></div><button class="copy-btn" onclick="cp(this,'compmgmt.msc')">Kopiera</button></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd">regedit</span><span class="desc">Registereditorn (Registry Editor)</span></div><button class="copy-btn" onclick="cp(this,'regedit')">Kopiera</button></div>
       <div class="cmd-row"><div class="cmd-left"><span class="cmd">msconfig</span><span class="desc">Systemkonfiguration (boot, startup)</span></div><button class="copy-btn" onclick="cp(this,'msconfig')">Kopiera</button></div>
       <div class="cmd-row"><div class="cmd-left"><span class="cmd">gpedit.msc</span><span class="desc">Grupprincipeditor (ej Home-versioner)</span></div><button class="copy-btn" onclick="cp(this,'gpedit.msc')">Kopiera</button></div>
       <div class="cmd-row"><div class="cmd-left"><span class="cmd">lusrmgr.msc</span><span class="desc">Lokala användare och grupper</span></div><button class="copy-btn" onclick="cp(this,'lusrmgr.msc')">Kopiera</button></div>
@@ -701,7 +701,7 @@ tr:hover td{background:var(--bg4)}
     <div class="card-body">
       <div class="tip tip-red"><strong>wmic diskdrive get status → "Pred Fail"</strong> – disken håller på att ge upp. Backup omedelbart, planera utbyte idag.</div>
       <div class="tip tip-red"><strong>chkdsk /r hittar dåliga sektorer</strong> – fysiska diskproblem. Backup och ersätt.</div>
-      <div class="tip tip-red"><strong>Enhet saknas helt i Enhetshanteraren</strong> – BIOS eller hårdvarufel. Kontrollera BIOS Port Options, kör HP Diagnostics F2.</div>
+      <div class="tip tip-red"><strong>Enhet saknas helt i Enhetshanteraren (Device Manager)</strong> – BIOS eller hårdvarufel. Kontrollera BIOS Port Options, kör HP Diagnostics F2.</div>
       <div class="tip tip-amber"><strong>100% disk i Task Manager konstant</strong> – troligast SysMain/Superfetch eller Windows Search. Stoppa SysMain-tjänsten och testa.</div>
     </div>
   </div>
@@ -717,7 +717,7 @@ tr:hover td{background:var(--bg4)}
     <div class="card-body">
       <div class="tip tip-amber"><strong>ping 8.8.8.8 funkar, ping google.com inte</strong> – DNS-problem. Kör ipconfig /flushdns och testa med manuell DNS (8.8.8.8).</div>
       <div class="tip tip-red"><strong>Okända processer i netstat -b med utgående trafik</strong> – undersök genast. Möjlig skadlig kod.</div>
-      <div class="tip tip-amber"><strong>Gult utropstecken i Enhetshanteraren</strong> – drivrutinsfel. Avinstallera och kör pnputil /scan-devices.</div>
+      <div class="tip tip-amber"><strong>Gult utropstecken i Enhetshanteraren (Device Manager)</strong> – drivrutinsfel. Avinstallera och kör pnputil /scan-devices.</div>
     </div>
   </div>
 </div>
@@ -741,7 +741,7 @@ tr:hover td{background:var(--bg4)}
     </div>
     <div class="card-body">
       <div class="flow">
-        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Öppna Activity Monitor och identifiera</div><div class="step-cmd">Activity Monitor → CPU-kolumnen</div><div class="step-note">Sortera på %CPU. Ser du kernel_task högt upp? Det är termisk throttling – Mac:en är för varm, inte ett fel.</div></div></div>
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Öppna Activity Monitor (Aktivitetskontroll) och identifiera</div><div class="step-cmd">Activity Monitor (Aktivitetskontroll) → CPU-kolumnen</div><div class="step-note">Sortera på %CPU. Ser du kernel_task högt upp? Det är termisk throttling – Mac:en är för varm, inte ett fel.</div></div></div>
         <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Kolla minnesanvändning</div><div class="step-cmd">vm_stat</div><div class="step-note">Hög "Pages out" = RAM är fullt. 8 GB M1 kan pressas hårt. Stäng appar.</div></div></div>
         <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Force-avsluta hängd app</div><div class="step-cmd">killall "Appnamn"</div><div class="step-note">Eller Cmd+Option+Esc för Force Quit-menyn</div></div></div>
         <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Kontrollera diskutrymme</div><div class="step-cmd">df -h</div><div class="step-note">macOS behöver minst 10–15% fri disk. Under det börjar systemet bli trött.</div></div></div>
@@ -760,7 +760,7 @@ tr:hover td{background:var(--bg4)}
         <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Isolera – DNS eller routing?</div><div class="step-cmd">ping -c 4 8.8.8.8</div><div class="step-note">Fungerar detta men inte ping google.com → DNS. Fungerar inte alls → routing/gateway-problem.</div></div></div>
         <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Rensa DNS-cache</div><div class="step-cmd">sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder</div><div class="step-note">Kör båda. Löser de flesta DNS-problem.</div></div></div>
         <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Kontrollera nätverksinställningar</div><div class="step-cmd">networksetup -getinfo "Wi-Fi"</div><div class="step-note">Verifierar IP, subnet och router är korrekt satta</div></div></div>
-        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Ta bort och lägg till Wi-Fi-nät igen</div><div class="step-note">System Settings → Wi-Fi → Glöm det här nätverket → anslut igen</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Ta bort och lägg till Wi-Fi-nät igen</div><div class="step-note">System Settings (Systeminställningar) → Wi-Fi → Glöm det här nätverket → anslut igen</div></div></div>
       </div>
     </div>
   </div>
@@ -974,12 +974,12 @@ tr:hover td{background:var(--bg4)}
     <div class="card-body">
       <table>
         <tr><th>Windows</th><th>macOS-motsvarighet</th></tr>
-        <tr><td class="mono">Task Manager</td><td>Activity Monitor (Utilities)</td></tr>
-        <tr><td class="mono">Event Viewer</td><td>Console.app + log show</td></tr>
-        <tr><td class="mono">Device Manager</td><td>System Information (system_profiler)</td></tr>
-        <tr><td class="mono">Kontrollpanelen</td><td>System Settings</td></tr>
-        <tr><td class="mono">Credential Manager</td><td>Keychain Access (Utilities)</td></tr>
-        <tr><td class="mono">Diskhanteraren</td><td>Disk Utility (Utilities)</td></tr>
+        <tr><td class="mono">Aktivitetshanteraren / Task Manager</td><td>Activity Monitor / Aktivitetskontroll (Utilities)</td></tr>
+        <tr><td class="mono">Händelseloggen / Event Viewer</td><td>Console.app + log show</td></tr>
+        <tr><td class="mono">Enhetshanteraren / Device Manager</td><td>System Information (system_profiler)</td></tr>
+        <tr><td class="mono">Kontrollpanelen / Control Panel</td><td>System Settings / Systeminställningar</td></tr>
+        <tr><td class="mono">Autentiseringshanteraren / Credential Manager</td><td>Keychain Access (Utilities)</td></tr>
+        <tr><td class="mono">Diskhanteraren / Disk Management</td><td>Disk Utility (Utilities)</td></tr>
         <tr><td class="mono">regedit</td><td>plist-filer + defaults-kommando i Terminal</td></tr>
         <tr><td class="mono">Services.msc</td><td>launchctl i Terminal</td></tr>
         <tr><td class="mono">msinfo32</td><td>system_profiler SPHardwareDataType</td></tr>
