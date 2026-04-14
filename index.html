@@ -1123,46 +1123,114 @@ function runSearch(q){
 
   if(!q){
     sr.style.display='none';nr.style.display='none';
-    panel.querySelectorAll('.section').forEach(function(s){});
     return;
   }
 
   var ql=q.toLowerCase();
   var results=[];
 
-  // Search in all cmd-rows in active panel
   panel.querySelectorAll('.section').forEach(function(sec){
     var secTitle=sec.querySelector('.sec-title');
     var secName=secTitle?secTitle.textContent:'';
+
+    // 1. Kommandon (.cmd-row)
     sec.querySelectorAll('.cmd-row').forEach(function(row){
       var text=row.textContent.toLowerCase();
       if(text.indexOf(ql)>=0){
         var cmdEl=row.querySelector('.cmd');
         var descEl=row.querySelector('.desc');
         var sitEl=row.querySelector('.cmd-situation');
-        var cmdText=cmdEl?cmdEl.textContent:'';
-        var descText=descEl?descEl.textContent:'';
-        var sitText=sitEl?sitEl.textContent:'';
-        // Also check card title
         var card=row.closest('.card');
-        var cardTitle=card?card.querySelector('.card-title'):'';
-        var cardName=cardTitle?cardTitle.textContent:'';
-        results.push({sec:secName,card:cardName,cmd:cmdText,desc:descText,sit:sitText,row:row});
+        var cardTitle=card?card.querySelector('.card-title'):null;
+        results.push({
+          type:'Kommando',sec:secName,
+          card:cardTitle?cardTitle.textContent:'',
+          cmd:cmdEl?cmdEl.textContent:'',
+          desc:descEl?descEl.textContent:'',
+          sit:sitEl?sitEl.textContent:'',
+          row:row,target:row
+        });
       }
     });
-    // Also search in flow steps
+
+    // 2. Flow-steg (.flow-step)
     sec.querySelectorAll('.flow-step').forEach(function(step){
       var text=step.textContent.toLowerCase();
       if(text.indexOf(ql)>=0){
         var labelEl=step.querySelector('.step-label');
         var cmdEl=step.querySelector('.step-cmd');
         var noteEl=step.querySelector('.step-note');
+        var card=step.closest('.card');
+        var cardTitle=card?card.querySelector('.card-title'):null;
         results.push({
-          sec:secName,card:'Felsökningsflöde',
+          type:'Flödesteg',sec:secName,
+          card:cardTitle?cardTitle.textContent:'Felsökningsflöde',
           cmd:cmdEl?cmdEl.textContent:'',
           desc:noteEl?noteEl.textContent:'',
           sit:labelEl?labelEl.textContent:'',
-          row:null
+          row:null,target:step
+        });
+      }
+    });
+
+    // 3. Kort-översikt (.card-header)
+    sec.querySelectorAll('.card').forEach(function(card){
+      var header=card.querySelector('.card-header');
+      if(!header) return;
+      var text=header.textContent.toLowerCase();
+      if(text.indexOf(ql)>=0){
+        var t=card.querySelector('.card-title');
+        var w=card.querySelector('.card-when');
+        results.push({
+          type:'Kort',sec:secName,
+          card:t?t.textContent:'',
+          cmd:'',desc:'',
+          sit:w?w.textContent:'',
+          row:null,target:card
+        });
+      }
+    });
+
+    // 4. Sektion (.sec-header)
+    var sh=sec.querySelector('.sec-header');
+    if(sh && sh.textContent.toLowerCase().indexOf(ql)>=0){
+      var st=sh.querySelector('.sec-title');
+      var sw=sh.querySelector('.sec-when');
+      results.push({
+        type:'Sektion',sec:secName,
+        card:st?st.textContent:'',
+        cmd:'',
+        desc:sw?sw.textContent:'',
+        sit:'',row:null,target:sec
+      });
+    }
+
+    // 5. Tips (.tip)
+    sec.querySelectorAll('.tip').forEach(function(tip){
+      if(tip.textContent.toLowerCase().indexOf(ql)>=0){
+        var parentCard=tip.closest('.card');
+        var ct=parentCard?parentCard.querySelector('.card-title'):null;
+        results.push({
+          type:'Tips',sec:secName,
+          card:ct?ct.textContent:'Tips',
+          cmd:'',desc:tip.textContent.trim(),
+          sit:'',row:null,target:tip
+        });
+      }
+    });
+
+    // 6. Tabellrader (table tr, exkl. header-rader med th)
+    sec.querySelectorAll('table tr').forEach(function(tr){
+      if(tr.querySelector('th')) return;
+      if(tr.textContent.toLowerCase().indexOf(ql)>=0){
+        var parentCard=tr.closest('.card');
+        var ct=parentCard?parentCard.querySelector('.card-title'):null;
+        var cells=[].slice.call(tr.querySelectorAll('td')).map(function(td){return td.textContent.trim();});
+        results.push({
+          type:'Tabell',sec:secName,
+          card:ct?ct.textContent:'Tabell',
+          cmd:'',desc:cells.join(' · '),
+          sit:'',row:null,target:tr
         });
       }
     });
@@ -1178,10 +1246,10 @@ function runSearch(q){
     return text.replace(re,'<span class="hl">$1</span>');
   }
 
-  var html='<div style="font-size:11px;color:var(--text3);margin-bottom:10px;">'+results.length+' träff'+( results.length!==1?'ar':'')+' för "'+q+'"</div>';
-  results.forEach(function(r){
-    html+='<div class="search-result-card">';
-    html+='<div class="src-os">'+hl(r.sec)+'</div>';
+  var html='<div style="font-size:11px;color:var(--text3);margin-bottom:10px;">'+results.length+' träff'+(results.length!==1?'ar':'')+' för "'+q+'"</div>';
+  results.forEach(function(r,i){
+    html+='<div class="search-result-card" data-idx="'+i+'" style="cursor:pointer">';
+    html+='<div class="src-os">'+r.type+' · '+hl(r.sec)+'</div>';
     html+='<div class="src-section">'+hl(r.card)+'</div>';
     html+='<div class="cmd-row"><div class="cmd-left">';
     if(r.sit) html+='<span class="cmd-situation">'+hl(r.sit)+'</span>';
@@ -1190,13 +1258,33 @@ function runSearch(q){
     html+='</div>';
     if(r.cmd && r.row){
       var rawCmd=r.row.querySelector('.cmd')?r.row.querySelector('.cmd').textContent:'';
-      html+='<button class="copy-btn" style="opacity:1" onclick="cp(this,\''+rawCmd.replace(/'/g,"\\'")+'\')" >Kopiera</button>';
+      html+='<button class="copy-btn" style="opacity:1" onclick="cp(this,\''+rawCmd.replace(/'/g,"\\'")+'\')" >'+COPY_ICON+'</button>';
     }
     html+='</div></div>';
   });
 
   sr.innerHTML=html;
   sr.style.display='block';
+
+  // Klick-till-navigering
+  sr.querySelectorAll('.search-result-card').forEach(function(el){
+    el.addEventListener('click',function(e){
+      if(e.target.closest('.copy-btn')) return;
+      var idx=parseInt(el.getAttribute('data-idx'),10);
+      var r=results[idx]; if(!r||!r.target) return;
+      // Expandera parent-kort om det är kollapsat
+      var pc=r.target.closest('.card');
+      if(pc && !pc.classList.contains('open')) pc.classList.add('open');
+      // Rensa sök och scrolla
+      clearSearch();
+      r.target.scrollIntoView({behavior:'smooth',block:'center'});
+      // Flash-highlight
+      r.target.style.transition='background-color 0.3s';
+      var orig=r.target.style.backgroundColor;
+      r.target.style.backgroundColor='rgba(255,241,118,0.4)';
+      setTimeout(function(){r.target.style.backgroundColor=orig;},1200);
+    });
+  });
 }
 </script>
 </body>
