@@ -170,6 +170,10 @@ tr:hover td{background:var(--bg4)}
 .src-os{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:6px 14px 0;color:var(--text3)}
 .src-section{font-size:11px;color:var(--text3);padding:0 14px 6px;border-bottom:1px solid var(--border2)}
 #search-results{display:none}
+
+/* DOC LINKS */
+.doc-link{color:inherit;text-decoration:underline;font-weight:600}
+.doc-link:hover{opacity:.75}
 </style>
 </head>
 <body>
@@ -208,6 +212,8 @@ tr:hover td{background:var(--bg4)}
   <button class="nav-item" onclick="st('win','w-perm',this)"><span class="nav-dot"></span>Behörigheter</button>
   <button class="nav-item" onclick="st('win','w-rep',this)"><span class="nav-dot"></span>Systemreparation</button>
   <button class="nav-item" onclick="st('win','w-keys',this)"><span class="nav-dot"></span>Kortkommandon</button>
+  <div class="slabel">Säkerhet</div>
+  <button class="nav-item" onclick="st('win','w-comp',this)"><span class="nav-dot"></span>Compliance &amp; Säkerhet</button>
   <div class="slabel">Referens</div>
   <button class="nav-item" onclick="st('win','w-warn',this)"><span class="nav-dot"></span>Varningstecken</button>
 </div>
@@ -721,6 +727,115 @@ tr:hover td{background:var(--bg4)}
       <div class="tip tip-amber"><strong>ping 8.8.8.8 funkar, ping google.com inte</strong> – DNS-problem. Kör ipconfig /flushdns och testa med manuell DNS (8.8.8.8).</div>
       <div class="tip tip-red"><strong>Okända processer i netstat -b med utgående trafik</strong> – undersök genast. Möjlig skadlig kod.</div>
       <div class="tip tip-amber"><strong>Gult utropstecken i Enhetshanteraren (Device Manager)</strong> – drivrutinsfel. Avinstallera och kör pnputil /scan-devices.</div>
+    </div>
+  </div>
+</div>
+
+<!-- W: COMPLIANCE -->
+<div class="section" id="w-comp">
+  <div class="sec-header">
+    <div class="sec-title">Compliance &amp; Säkerhet – Windows</div>
+    <div class="sec-when"><strong>Använd när</strong> en enhet rapporteras som Non-Compliant i Microsoft Intune. Varje avsnitt beskriver vad komponenten gör, vad Non-Compliant innebär och hur du åtgärdar det med PowerShell eller GUI. Kör alltid PowerShell som administratör.</div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Åtgärdsordning vid flera non-compliant poster</div><div class="card-when">Starta alltid med TPM och Secure Boot – BitLocker är beroende av dem</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-amber"><strong>Rätt ordning:</strong> <strong>1. TPM</strong> → <strong>2. Secure Boot</strong> → <strong>3. BitLocker</strong> → <strong>4. Brandvägg / Antivirus / Anti-Spyware</strong><br><br>BitLocker kräver TPM för automatisk upplåsning vid omstart. Secure Boot bör vara aktivt innan BitLocker aktiveras för att skydda bootsekvensen mot rootkits. Brandvägg, Antivirus och Anti-Spyware är oberoende av varandra och kan åtgärdas i valfri ordning.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Brandvägg (Windows Defender Firewall)</div><div class="card-when">Intune-krav: Brandväggen aktiv på alla nätverksprofiler (Domän, Privat, Publikt)</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-blue"><strong>Vad det är:</strong> Windows Defender-brandväggen kontrollerar inkommande och utgående nätverkstrafik baserat på regler. Den filtrerar anslutningar per nätverksprofil (Domän, Privat, Publikt) och förhindrar obehörig åtkomst till och från enheten.</div>
+      <div class="tip tip-amber"><strong>Non-compliant i Intune:</strong> Brandväggen är avstängd på minst ett nätverksprofil. Intune-policyn kräver att alla tre profiler är aktiverade.</div>
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Kontrollera status för alla nätverksprofiler</div><div class="step-cmd">Get-NetFirewallProfile | Select-Object Name, Enabled</div><div class="step-note">Enabled ska visa True för Domain, Private och Public. False på något profil = non-compliant.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Aktivera brandväggen för alla profiler (kräver admin)</div><div class="step-cmd">Set-NetFirewallProfile -All -Enabled True</div><div class="step-note">Aktiverar alla tre profiler med ett kommando. Verifiera med steg 1 efteråt.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Alternativ via CMD om PowerShell är blockerat</div><div class="step-cmd">netsh advfirewall set allprofiles state on</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Verifiera i GUI</div><div class="step-cmd">wf.msc</div><div class="step-note">Öppnar brandväggens avancerade inställningar. Kontrollera att alla tre profiler visar "Windows Defender-brandväggen är aktiverad".</div></div></div>
+      </div>
+      <div class="tip tip-blue"><strong>Dokumentation:</strong> <a href="https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/" target="_blank" rel="noopener" class="doc-link">Microsoft Learn – Windows Defender Firewall ↗</a></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Antivirus (Microsoft Defender Antivirus)</div><div class="card-when">Intune-krav: Realtidsskydd aktiverat och virusdefinitioner uppdaterade</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-blue"><strong>Vad det är:</strong> Microsoft Defender Antivirus är det inbyggda virusskyddet i Windows. Det skannar filer, processer och webbadresser i realtid mot kända och beteendebaserade hot. Hanteras centralt via Intune/Endpoint Manager och rapporterar status direkt till Intune-konsolen.</div>
+      <div class="tip tip-amber"><strong>Non-compliant i Intune:</strong> Realtidsskyddet (RealTimeProtection) är inaktiverat, eller virusdefinitionerna är äldre än tröskeln i Intune-policyn (vanligen 1–3 dagar).</div>
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Kontrollera aktuell status</div><div class="step-cmd">Get-MpComputerStatus | Select-Object AntivirusEnabled,RealTimeProtectionEnabled,AntivirusSignatureLastUpdated</div><div class="step-note">AntivirusEnabled och RealTimeProtectionEnabled ska båda visa True. AntivirusSignatureLastUpdated bör inte vara mer än 1–3 dagar gammal.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Aktivera realtidsskyddet om det är av</div><div class="step-cmd">Set-MpPreference -DisableRealtimeMonitoring $false</div><div class="step-note">Om realtidsskyddet hanteras av ett tredjepartsprogram eller grupprincip kan detta kommando överskridas. Kontrollera i så fall Intune-policytilldelningen.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Uppdatera virusdefinitioner</div><div class="step-cmd">Update-MpSignature</div><div class="step-note">Kräver internetanslutning. Hämtar senaste definitioner från Microsoft. Kör steg 1 igen efteråt för att bekräfta att datumet uppdaterats.</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Kör en snabbsökning för att verifiera funktionen</div><div class="step-cmd">Start-MpScan -ScanType QuickScan</div></div></div>
+      </div>
+      <div class="tip tip-blue"><strong>Dokumentation:</strong> <a href="https://learn.microsoft.com/en-us/defender-endpoint/microsoft-defender-antivirus-windows" target="_blank" rel="noopener" class="doc-link">Microsoft Learn – Microsoft Defender Antivirus ↗</a></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Anti-Spyware (Microsoft Defender)</div><div class="card-when">Intune-krav: Anti-Spyware aktiverat och definitioner uppdaterade</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-blue"><strong>Vad det är:</strong> Anti-spyware-skyddet ingår i Microsoft Defender och kör på samma motor som antiviruset. Det identifierar och blockerar spionprogram, adware, stalkerware och annan potentiellt oönskad programvara (PUA) som kan samla in data utan samtycke.</div>
+      <div class="tip tip-amber"><strong>Non-compliant i Intune:</strong> Defender rapporterar AntispywareEnabled = False. Vanligaste orsaken är att Defender inaktiverats av ett tredjepartsprogram eller via grupprincip, eller att spyware-definitionerna är för gamla.</div>
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Kontrollera anti-spyware-status</div><div class="step-cmd">Get-MpComputerStatus | Select-Object AntispywareEnabled,AntispywareSignatureLastUpdated,AntispywareSignatureVersion</div><div class="step-note">AntispywareEnabled ska visa True. Signaturdatumet bör inte vara mer än 1–3 dagar gammalt.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Aktivera anti-spyware-skyddet</div><div class="step-cmd">Set-MpPreference -DisableAntiSpyware $false</div><div class="step-note">Om en tredjepartsprodukt (t.ex. Symantec, McAfee) är installerad kan den överta och inaktivera Defender. Kontrollera i Windows Säkerhet om ett annat program hanterar skyddet.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Uppdatera signaturer</div><div class="step-cmd">Update-MpSignature</div><div class="step-note">Uppdaterar både antivirus- och anti-spyware-definitioner i ett steg.</div></div></div>
+      </div>
+      <div class="tip tip-blue"><strong>Dokumentation:</strong> <a href="https://learn.microsoft.com/en-us/defender-endpoint/microsoft-defender-antivirus-windows" target="_blank" rel="noopener" class="doc-link">Microsoft Learn – Microsoft Defender Antivirus ↗</a></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">BitLocker – diskkryptering</div><div class="card-when">Intune-krav: Systemdisken (C:) krypterad och aktivt skyddad</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-blue"><strong>Vad det är:</strong> BitLocker krypterar hela enheten med AES-256 (eller AES-128). Om datorn stjäls eller hårddisken plockas ut är all data oläslig utan återställningsnyckeln. BitLocker låses automatiskt upp vid start via TPM om TPM finns och är aktivt.</div>
+      <div class="tip tip-amber"><strong>Non-compliant i Intune:</strong> Systemdisken är inte krypterad (ProtectionStatus = Protection Off), krypteringen är pausad (Suspended), eller återställningsnyckeln saknas i Entra ID. Kräver TPM 2.0 – kontrollera TPM-kortet nedan först.</div>
+      <div class="tip tip-red"><strong>Obs:</strong> Aktivering av BitLocker startar bakgrundskryptering som kan ta timmar på stora diskar. Håll datorn ansluten till ström under hela processen.</div>
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Kontrollera krypteringsstatus via CMD</div><div class="step-cmd">manage-bde -status C:</div><div class="step-note">Titta på "Protection Status" och "Conversion Status". Protection On + Fully Encrypted = compliant.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Kontrollera status via PowerShell</div><div class="step-cmd">Get-BitLockerVolume -MountPoint C: | Select-Object MountPoint,ProtectionStatus,EncryptionMethod,VolumeStatus</div><div class="step-note">ProtectionStatus ska visa On. VolumeStatus ska visa FullyEncrypted.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Återuppta pausad kryptering (om status visar Suspended)</div><div class="step-cmd">Resume-BitLocker -MountPoint C:</div><div class="step-note">BitLocker pausas ibland automatiskt vid Windows Update eller BIOS-uppdatering. Återuppta med detta kommando – kräver ingen ny kryptering.</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Aktivera BitLocker med TPM (kräver TPM 2.0 och admin)</div><div class="step-cmd">Enable-BitLocker -MountPoint C: -EncryptionMethod Aes256 -TpmProtector</div><div class="step-note">Startar kryptering i bakgrunden. Datorn kan användas normalt under krypteringen men håll ström ansluten.</div></div></div>
+        <div class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">Säkerhetskopiera återställningsnyckeln till Entra ID</div><div class="step-cmd">BackupToAAD-BitLockerKeyProtector -MountPoint C: -KeyProtectorId (Get-BitLockerVolume -MountPoint C:).KeyProtector[0].KeyProtectorId</div><div class="step-note">Kräver att datorn är Entra ID-ansluten (Azure AD Join). Utan nyckel i Entra ID kan enheten inte låsas upp om BitLocker triggas vid nästa omstart.</div></div></div>
+        <div class="flow-step"><div class="step-num">6</div><div class="step-body"><div class="step-label">Öppna BitLocker-hanteraren via GUI</div><div class="step-cmd">control /name Microsoft.BitLockerDriveEncryption</div></div></div>
+      </div>
+      <div class="tip tip-blue"><strong>Dokumentation:</strong> <a href="https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/" target="_blank" rel="noopener" class="doc-link">Microsoft Learn – BitLocker ↗</a></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Secure Boot – startskydd</div><div class="card-when">Intune-krav: Secure Boot aktiverat i UEFI/BIOS</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-blue"><strong>Vad det är:</strong> Secure Boot är en UEFI-funktion som verifierar att all startprogramvara (bootloader, drivrutiner) är signerad av betrodda certifikat vid uppstart. Det förhindrar rootkits och manipulerade bootloaders från att ladda in i systemet innan Windows startar.</div>
+      <div class="tip tip-amber"><strong>Non-compliant i Intune:</strong> Secure Boot är inaktiverat i UEFI/BIOS. Vanligaste orsaken är att det stängts av för att köra äldre operativsystem, Linux dual-boot, eller för att installera osignerade drivrutiner.</div>
+      <div class="tip tip-red"><strong>Obs:</strong> Secure Boot kan INTE aktiveras från Windows eller PowerShell. Det konfigureras enbart i UEFI/BIOS-inställningarna. Steg 3 nedan startar om datorn direkt till UEFI.</div>
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Kontrollera om Secure Boot är aktiverat</div><div class="step-cmd">Confirm-SecureBootUEFI</div><div class="step-note">Returnerar True = aktiverat (compliant). False = inaktiverat (non-compliant). Kastar ett undantag om datorn använder Legacy BIOS och saknar UEFI-stöd.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Verifiera via systeminfo</div><div class="step-cmd">msinfo32</div><div class="step-note">Se raden "Säker start" (sv) eller "Secure Boot State" (en) – ska visa "På" / "On".</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Starta om direkt till UEFI-inställningar</div><div class="step-cmd">shutdown /r /fw /t 0</div><div class="step-note">Öppnar UEFI/BIOS vid nästa omstart. Aktivera Secure Boot under fliken "Boot" eller "Security". Spara och starta om. Placering varierar per tillverkare – HP: Security → Secure Boot, Dell: Secure Boot → Enabled.</div></div></div>
+      </div>
+      <div class="tip tip-blue"><strong>Dokumentation:</strong> <a href="https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/disabling-secure-boot?view=windows-11#re-enable-secure-boot" target="_blank" rel="noopener" class="doc-link">Microsoft Learn – Återaktivera Secure Boot ↗</a></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">TPM – Trusted Platform Module</div><div class="card-when">Intune-krav: TPM 2.0 aktiverat och funktionellt</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-blue"><strong>Vad det är:</strong> TPM är ett dedikerat säkerhetschip (eller firmware-TPM, fTPM) som lagrar kryptografiska nycklar isolerat från operativsystemet. Det används av BitLocker för automatisk upplåsning, Windows Hello för biometrisk autentisering och av Intune för enhetsattestering. Windows 11 kräver TPM 2.0.</div>
+      <div class="tip tip-amber"><strong>Non-compliant i Intune:</strong> TPM är inaktiverat i UEFI, enheten har TPM 1.2 istället för 2.0, eller TPM är i ett feltillstånd (TpmReady = False). Aktivering och versionskrav hanteras i UEFI – kan inte åtgärdas från Windows.</div>
+      <div class="tip tip-red"><strong>Varning:</strong> Clear-Tpm raderar ALLA TPM-skyddade nycklar permanent. Stäng av BitLocker, avregistrera Windows Hello och logga ut från alla TPM-beroende tjänster INNAN du kör Clear-Tpm.</div>
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Kontrollera TPM-status och beredskap</div><div class="step-cmd">Get-Tpm</div><div class="step-note">TpmPresent, TpmReady, TpmEnabled och TpmActivated ska alla visa True. ManufacturerVersion bör börja med 2 (TPM 2.0).</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Kontrollera version och aktiveringsstatus via CIM</div><div class="step-cmd">Get-CimInstance -Namespace "Root\CIMv2\Security\MicrosoftTpm" -ClassName Win32_Tpm | Select-Object IsActivated_InitialValue,IsEnabled_InitialValue,ManufacturerVersion</div><div class="step-note">ManufacturerVersion 2.x = TPM 2.0 (compliant). Version 1.2 är inte tillräckligt för Windows 11 och moderna Intune-krav.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Öppna TPM-hanteraren för visuell kontroll</div><div class="step-cmd">tpm.msc</div><div class="step-note">Visar TPM-tillverkare, version och om TPM är redo. "The TPM is ready for use" = OK.</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Om TPM är inaktiverat – starta om till UEFI och aktivera</div><div class="step-cmd">shutdown /r /fw /t 0</div><div class="step-note">Gå till Security-fliken i UEFI. Aktivera TPM (kallas ibland PTT på Intel eller AMD fTPM). Spara och starta om. Kör sedan Get-Tpm igen för att verifiera.</div></div></div>
+        <div class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">Rensa TPM vid feltillstånd (sista utväg – se varning ovan)</div><div class="step-cmd">Clear-Tpm</div><div class="step-note">Används om TPM fastnat i ett ogiltigt tillstånd och TpmReady = False trots att TPM är aktiverat. Återställer TPM till fabrikstillstånd. Kräver bekräftelse i BIOS/UEFI vid nästa omstart.</div></div></div>
+      </div>
+      <div class="tip tip-blue"><strong>Dokumentation:</strong> <a href="https://learn.microsoft.com/en-us/windows/security/hardware-security/tpm/initialize-and-configure-ownership-of-the-tpm" target="_blank" rel="noopener" class="doc-link">Microsoft Learn – Initiera och konfigurera TPM ↗</a></div>
     </div>
   </div>
 </div>
