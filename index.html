@@ -197,6 +197,7 @@ tr:hover td{background:var(--bg4)}
 <div class="sidebar" id="sw">
   <div class="slabel">Situationer</div>
   <button class="nav-item active" onclick="st('win','w-flow',this)"><span class="nav-dot"></span>Felsökningsflöden</button>
+  <button class="nav-item" onclick="st('win','w-netinc',this)"><span class="nav-dot"></span>Nätverksincidenter</button>
   <div class="slabel">System</div>
   <button class="nav-item" onclick="st('win','w-sys',this)"><span class="nav-dot"></span>Systeminfo</button>
   <button class="nav-item" onclick="st('win','w-boot',this)"><span class="nav-dot"></span>Boot &amp; Recovery</button>
@@ -449,6 +450,112 @@ tr:hover td{background:var(--bg4)}
     <div class="card-body">
       <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ SMART-status</span><span class="cmd">Get-PhysicalDisk | Select-Object FriendlyName,HealthStatus,OperationalStatus</span><span class="desc">Healthy = OK · Unhealthy = byt disk NU · Warning = övervaka noga</span></div><button class="copy-btn" onclick="cp(this,'Get-PhysicalDisk | Select-Object FriendlyName,HealthStatus,OperationalStatus')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div>
       <div class="tip tip-red"><strong>Unhealthy</strong> = disken är på väg att ge upp. Backup omedelbart och planera utbyte.</div>
+    </div>
+  </div>
+</div>
+
+<!-- W: NÄTVERKSINCIDENTER -->
+<div class="section" id="w-netinc">
+  <div class="sec-header">
+    <div class="sec-title">Nätverksincidenter – Windows</div>
+    <div class="sec-when"><strong>Använd detta flöde</strong> vid nätincidenter. Samla in informationen nedan, följ felsökningstegen för aktuellt scenario och eskalera sedan till <strong>S_B_Leveransteam_Network</strong> om problemet kvarstår.</div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Checklista – samla in innan eskalering</div><div class="card-when">Dokumentera och bifoga i ärendet innan du kontaktar nästa nivå</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-amber"><strong>Eskalera till: S_B_Leveransteam_Network</strong> när grundfelsökning är klar och problemet kvarstår. Se till att nedan är dokumenterat i ärendet.</div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">☐ IP- och ping-resultat</span><span class="desc">Notera utdata från ipconfig /all och ping-testen</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">☐ Nätverksrapport</span><span class="desc">Bifoga filen wlan-report-latest.html (se kommando nedan)</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">☐ Tidpunkt – när slutade det fungera?</span><span class="desc">Exakt tid eller ungefärlig tidpunkt för felet</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">☐ En eller flera drabbade?</span><span class="desc">En = troligt klientproblem · Flera = troligt nätverksproblem</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">☐ SSID / namn på anslutningen</span><span class="desc">Vilket Wi-Fi-nät eller vilken kabelport gäller det?</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">☐ Stad och adress till siten</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">☐ Lampstatus på utrustningen</span><span class="desc">Router/switch – notera vilka lampor som lyser och vilken färg</span></div></div>
+      <div class="cmd-row"><div class="cmd-left"><span class="cmd-situation">→ Skapa Wi-Fi-rapport (kör som admin i CMD)</span><span class="cmd">netsh wlan show wlanreport</span><span class="desc">Filen wlan-report-latest.html skapas i C:\ProgramData\Microsoft\Windows\WlanReport\. Kan köras offline – anslut sedan till mobildata för att kopiera och bifoga filen.</span></div><button class="copy-btn" onclick="cp(this,'netsh wlan show wlanreport')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Inledande frågor – kategorisera ärendet</div><div class="card-when">Börja alltid här – svaren styr vilket scenariokort du ska följa</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Var sitter användaren?</div><div class="step-note">Hemma / Kontoret / Annan plats – avgör om det kan vara ett platsspecifikt problem.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Hur är användaren uppkopplad?</div><div class="step-note">Trådat (kabel) / Trådlöst (Wi-Fi) / VPN – styr val av scenariokort.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Hur artar sig problemet?</div><div class="step-note">Vissa sidor fungerar inte / Bara internt / Bara externt / Inget alls – precisera symptomen.</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Är uppkopplingen långsam eller fungerar den inte alls?</div><div class="step-note">Långsam → Scenario: Långsam anslutning. Fungerar ej → Generell felsökning och sedan rätt scenario.</div></div></div>
+        <div class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">Om den inte fungerar alls – en eller flera drabbade?</div><div class="step-note">En användare = troligt klientproblem, börja med klientens enhet. Flera = troligt infrastrukturproblem, eskalera snabbare.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Generell felsökning – notera alla resultat i ärendet</div><div class="card-when">Kör dessa steg oavsett scenario. Notera utdata i ärendet.</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Ser användaren SSID / nätverksnamnet?</div><div class="step-note">Ja = adaptern fungerar, problemet är anslutning eller autentisering. Nej = adapterproblem eller nätverket sänder ej.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Kör hastighetstest och notera ned/uppladdning och ping</div><div class="step-note">Kör via <a href="http://speedtest.net" target="_blank" rel="noopener" class="doc-link">speedtest.net ↗</a> eller <a href="http://fast.com" target="_blank" rel="noopener" class="doc-link">fast.com ↗</a>. Notera resultaten i ärendet.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Eventuellt felmeddelande när användaren försöker ansluta?</div><div class="step-note">Notera exakt feltext i ärendet.</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Kontrollera IP-konfiguration</div><div class="step-cmd">ipconfig /all</div><div class="step-note">Kontrollera att IP, gateway och DNS är korrekt ifyllda. APIPA-adress (169.254.x.x) = DHCP fungerar ej.</div></div></div>
+        <div class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">Pinga gateway (lokalt nät)</div><div class="step-cmd">ping 192.168.1.1</div><div class="step-note">Hitta rätt gateway-IP i utdata från ipconfig /all. Timeout = problem mot lokalt nät.</div></div></div>
+        <div class="flow-step"><div class="step-num">6</div><div class="step-body"><div class="step-label">Pinga mot internet (kringgår DNS)</div><div class="step-cmd">ping 1.1.1.1</div><div class="step-note">Om gateway-ping fungerar men detta inte → routingproblem. Prova även: ping 8.8.8.8</div></div></div>
+        <div class="flow-step"><div class="step-num">7</div><div class="step-body"><div class="step-label">Notera lampstatus på switch / router på plats</div><div class="step-note">Vilka lampor lyser? Vilken färg? Blinkar de? Notera i ärendet.</div></div></div>
+        <div class="flow-step"><div class="step-num">8</div><div class="step-body"><div class="step-label">Skapa Wi-Fi-rapport och bifoga i ärendet (kör som admin)</div><div class="step-cmd">netsh wlan show wlanreport</div><div class="step-note">Filen wlan-report-latest.html skapas i C:\ProgramData\Microsoft\Windows\WlanReport\. Kan köras offline.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Scenario – Långsam anslutningshastighet</div><div class="card-when">Användaren kan ansluta men hastigheten är märkbart lägre än normalt</div></div><span class="badge b-amber">Scenario</span><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Flytta klientenheten för bättre siktlinje mot accesspunkten</div><div class="step-note">Väggar, metallföremål och avstånd påverkar hastigheten. Testa närmre accesspunkten och notera om det förbättras.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Uppdatera programvara och Wi-Fi-drivrutiner på klientenheten</div><div class="step-note">Enhetshanteraren (Device Manager) → Nätverkskort → högerklicka → Uppdatera drivrutin.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Testa med annan enhet på samma plats</div><div class="step-note">Är den andra enheten också långsam? Ja = nätverksproblem, eskalera. Nej = klientenhetens problem.</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Kör hastighetstest och notera resultatet i ärendet</div><div class="step-note">Kör via <a href="http://speedtest.net" target="_blank" rel="noopener" class="doc-link">speedtest.net ↗</a> eller <a href="http://fast.com" target="_blank" rel="noopener" class="doc-link">fast.com ↗</a>. Notera ned/uppladdning och ping.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Scenario – Enheten kopplar ibland ned från nätverket</div><div class="card-when">Anslutningen fungerar men kopplas ned med ojämna mellanrum</div></div><span class="badge b-amber">Scenario</span><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Uppdatera programvara och Wi-Fi-drivrutiner på klientenheten</div><div class="step-note">Enhetshanteraren (Device Manager) → Nätverkskort → högerklicka → Uppdatera drivrutin.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Flytta klienten närmare accesspunkten – märks någon skillnad?</div><div class="step-note">Svag signal kan orsaka sporadiska nedkopplingar. Förbättras det närmre? Ja = platsrelaterat, Nej = annat problem.</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Kontrollera vilken kanal klienten är ansluten på</div><div class="step-note">Syns i Wi-Fi-inställningarna. Kanalkollision med grannar kan ge instabilt nät.</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Kontrollera om fler på samma plats drabbas</div><div class="step-note">Ja = accesspunktsproblem, eskalera. Nej = klientspecifikt problem, fortsätt felsöka klienten.</div></div></div>
+        <div class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">Kontrollera klientens loggar – strömsparläge eller annan nedkopplingsorsak</div><div class="step-cmd">eventvwr.msc → Windows Logs → System</div><div class="step-note">Filtrera på tidpunkten för nedkoppling. Sök händelse-ID 10000 (Wi-Fi disconnect) eller strömhändelser.</div></div></div>
+        <div class="flow-step"><div class="step-num">6</div><div class="step-body"><div class="step-label">Skapa Wi-Fi-rapport och bifoga i ärendet</div><div class="step-cmd">netsh wlan show wlanreport</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Scenario – Ansluten men kan inte skicka data / surfa</div><div class="card-when">Enheten visar nätverksanslutning men internet fungerar inte</div></div><span class="badge b-red">Scenario</span><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Kontrollera IP-adressen</div><div class="step-cmd">ipconfig /all</div><div class="step-note">APIPA-adress (169.254.x.x) = DHCP fungerar ej. Kontrollera att DHCP är aktiverat – inte statisk IP. Byt till automatisk IP om det är statisk.</div></div></div>
+        <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Kontrollera SSID, säkerhetstyp och krypteringsnyckel</div><div class="step-note">Stämmer SSID-namn, säkerhetsprotokoll (WPA2/WPA3) och lösenord mot nätverkets inställningar?</div></div></div>
+        <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Koppla ned från SSID och återanslut</div><div class="step-note">Glöm nätverket och anslut på nytt för att rensa eventuell felaktig session.</div></div></div>
+        <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Kontrollera signalstyrka – fråga om "antal staplar"</div><div class="step-note">Förbättras signalen när användaren rör sig närmre accesspunkten? Ja = platsrelaterat. Nej = annat problem.</div></div></div>
+        <div class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">Uppdatera klientenhetens programvara och drivrutiner</div></div></div>
+        <div class="flow-step"><div class="step-num">6</div><div class="step-body"><div class="step-label">Starta om klientenheten</div></div></div>
+        <div class="flow-step"><div class="step-num">7</div><div class="step-body"><div class="step-label">Testa ansluta till ett annat SSID (t.ex. mobil hotspot)</div><div class="step-note">Fungerar det? Ja = problem med det specifika nätverket/SSID. Nej = problem med klientenheten.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" onclick="tog(this)"><div style="flex:1"><div class="card-title">Scenario – Nätverkskabel fungerar ej</div><div class="card-when">Trådat nätverkskort visar fel, ingen anslutning eller okänd status</div></div><span class="chevron">▶</span></div>
+    <div class="card-body">
+      <div class="tip tip-blue">Kör först steg 4 (<strong>ipconfig /all</strong>), steg 7 (<strong>lampstatus</strong>) och steg 8 (<strong>Wi-Fi-rapport</strong>) från Generell felsökning ovan.</div>
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Öppna nätverksanslutningar och kontrollera Ethernet-status</div><div class="step-cmd">ncpa.cpl</div><div class="step-note">Titta under Ethernet-adaptern. Notera exakt statustext och följ rätt spår nedan.</div></div></div>
+      </div>
+      <div class="tip tip-red"><strong>Status: Network cable unplugged</strong> – Kabeln eller porten är problemet.<br>1. Testa ett annat nätverksuttag i samma rum.<br>2. Testa ett uttag i ett annat rum.<br>3. Testa ett uttag som fungerar för en annan användare.<br>4. Testa en annan nätverkskabel.<br>5. Inget hjälper → notera vad som testats och eskalera ärendet.</div>
+      <div class="tip tip-amber"><strong>Status: Identifying</strong> – Kabeln har signal men DHCP svarar inte.<br>1. Testa ett annat nätverksuttag i samma rum.<br>2. Testa ett uttag i ett annat rum.<br>3. Testa ett uttag som fungerar för en annan användare.<br>4. Testa en annan nätverkskabel.<br>5. Inget hjälper → notera vad som testats och eskalera ärendet.</div>
+      <div class="tip tip-green"><strong>Status: Domännamnet (t.ex. "Contoso" eller "Network")</strong> – Kabeln fungerar. Datorn har kontakt med den interna miljön. Problemet ligger troligen högre upp i stacken – kontrollera DNS, proxy och internettjänster, eller eskalera.</div>
     </div>
   </div>
 </div>
